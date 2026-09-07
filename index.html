@@ -3,253 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Venkata Sai — Data Analyst Portfolio</title>
+<title>Venkata Sai — Data Analyst</title>
+<meta name="description" content="Venkata Sai — Data Analyst portfolio">
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:#0a0a0f;color:#f2f1f6;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;opacity:0;animation:pageIn .7s ease forwards}
-@keyframes pageIn{to{opacity:1}}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:1180px;margin:auto;padding:0 28px}
-
-/* NAV */
-nav{position:sticky;top:0;z-index:50;background:rgba(10,10,15,.82);backdrop-filter:blur(16px);border-bottom:1px solid #232230}
-.nav{height:74px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-weight:800;font-size:20px;letter-spacing:-.02em}.logo span{color:#b8a7ff}
-.links{display:flex;gap:28px;font-size:13.5px;color:#c3c1cf}
-.links a{position:relative;padding:6px 0}
-.links a.active{color:#fff}
-.links a.active:after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:#b8a7ff;border-radius:2px}
-.links a:hover{color:#fff}
-.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
-.burger span{width:22px;height:2px;background:#f2f1f6;border-radius:2px}
-.mobile-menu{display:none;flex-direction:column;padding:14px 28px 20px;border-bottom:1px solid #232230;background:#0d0d13}
-.mobile-menu.open{display:flex}
-.mobile-menu a{padding:10px 0;color:#c3c1cf;border-bottom:1px solid #1d1c26;font-size:14px}
-.mobile-menu a:last-child{border-bottom:none}
-
-/* BUTTONS */
-.btn{display:inline-block;border:1px solid #4c4859;padding:12px 20px;border-radius:999px;font-size:13.5px;font-weight:600;background:#151420;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
-.btn:hover{transform:translateY(-2px);border-color:#7a71a0;background:#1b1a29}
-.btn.primary{background:#f2f1f6;color:#0a0a0f;border-color:#f2f1f6}
-.btn.primary:hover{background:#fff;transform:translateY(-2px)}
-.btn+.btn{margin-left:10px}
-.btn.small{padding:8px 14px;font-size:12px}
-
-/* HERO */
-.hero{padding:100px 0 90px;background:radial-gradient(circle at 15% 20%,#241f38 0,#0d0c14 45%,#0a0a0f 75%)}
-.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:center}
-.eyebrow{display:inline-block;border:1px solid #4c4859;border-radius:999px;padding:7px 14px;color:#d3cfe8;font-size:11.5px;letter-spacing:.1em;font-weight:600}
-.hero h1{font-size:clamp(38px,5.2vw,64px);line-height:1.05;letter-spacing:-.03em;margin:22px 0 18px}
-.hero h1 .accent{color:#b8a7ff}
-.hero p{color:#a6a4b3;font-size:17px;line-height:1.7;max-width:520px}
-.hero-actions{margin-top:32px}
-.hero-photo{position:relative;width:100%;max-width:340px;aspect-ratio:1;margin:auto;border-radius:32px;overflow:hidden;border:1px solid #3a3650}
-.hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-photo:before{content:"";position:absolute;inset:-40px;background:radial-gradient(circle,rgba(184,167,255,.35) 0,rgba(184,167,255,0) 70%);z-index:-1}
-
-/* SECTIONS */
-section{padding:88px 0}
-.label{color:#a89ed6;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.h2{font-size:38px;letter-spacing:-.03em;margin:8px 0 14px}
-.intro{color:#9b98a8;max-width:640px;line-height:1.6}
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
-.reveal.in-view{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}body{animation:none;opacity:1}}
-
-/* ABOUT */
-.about-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:50px;align-items:start;margin-top:10px}
-.profile-card{border:1px solid #2c2a3a;border-radius:22px;padding:28px;background:linear-gradient(150deg,#161522,#0f0e17)}
-.profile-card h3{margin:0 0 16px;font-size:17px;color:#d3cfe8}
-.profile-card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 16px;font-size:13.5px}
-.profile-card dt{color:#7b7890}
-.profile-card dd{margin:0;color:#f2f1f6;font-weight:500}
-
-/* CARDS GRID */
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
-.card{border:1px solid #2c2a3a;border-radius:20px;padding:26px;background:linear-gradient(150deg,#161522,#0f0e17);transition:transform .2s ease,border-color .2s ease}
-.card:hover{transform:translateY(-5px);border-color:#5c5578}
-.card h3{margin:0 0 10px;font-size:18px}
-.card p{color:#9997a6;font-size:14px;line-height:1.65;margin:0 0 14px}
-.tag{display:inline-block;border:1px solid #3a3748;border-radius:999px;padding:5px 10px;font-size:11px;color:#c4c2ce;margin:3px 4px 0 0}
-
-/* SKILLS */
-.skill-cloud{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
-.skill-pill{border:1px solid #3a3748;border-radius:12px;padding:10px 16px;font-size:13px;color:#dcdae4;background:#141320;transition:transform .18s ease,border-color .18s ease}
-.skill-pill:hover{transform:translateY(-3px);border-color:#8a80b8}
-
-/* PROJECTS */
-.proj-actions{display:flex;gap:8px;margin-top:16px}
-
-/* EXPERIENCE */
-.timeline{margin-top:40px;border-left:2px solid #2c2a3a;padding-left:30px;display:flex;flex-direction:column;gap:42px}
-.job{position:relative}
-.job:before{content:"";position:absolute;left:-38px;top:6px;width:10px;height:10px;border-radius:50%;background:#b8a7ff;box-shadow:0 0 10px rgba(184,167,255,.6)}
-.job .date{font-size:12px;color:#a89ed6;font-weight:600;letter-spacing:.03em}
-.job h3{margin:6px 0 14px;font-size:19px}
-.job ul{margin:0;padding-left:18px;color:#9997a6;font-size:14px;line-height:1.9}
-
-/* CERTIFICATIONS */
-.cert-card{border:1px solid #2c2a3a;border-radius:22px;padding:30px;background:linear-gradient(150deg,#161522,#0f0e17);margin-top:30px}
-.cert-card h3{margin:0 0 10px;font-size:19px}
-.cert-card p{color:#9997a6;font-size:14px;line-height:1.7;max-width:640px}
-
-/* CONTACT */
-.contact{border:1px solid #34313f;border-radius:28px;padding:50px;background:linear-gradient(135deg,#181724,#0e0d15);text-align:center}
-.contact h2{font-size:36px;margin:8px 0 14px}
-.contact p{color:#a6a4b3;max-width:560px;margin:0 auto}
-.contact-info{display:flex;flex-wrap:wrap;justify-content:center;gap:28px;margin:34px 0}
-.contact-info div{font-size:14px;color:#c3c1cf}
-.contact-info strong{display:block;color:#7b7890;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
-
-footer{border-top:1px solid #232230;padding:30px 0;color:#6f6d80;font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-
-@media(max-width:860px){
-.links{display:none}.burger{display:flex}
-.hero-grid,.about-grid{grid-template-columns:1fr}
-.hero-photo{margin-top:20px;max-width:260px}
-.cards{grid-template-columns:1fr}
-.h2,.contact h2{font-size:30px}
-.contact{padding:32px 22px}
-}
+:root{--bg:#08070b;--ink:#f4f0f8;--muted:#9b95a4;--line:#29242f;--accent:#c8a6ff;--accent2:#8f6db7;--panel:#111016}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;background:radial-gradient(circle at 70% 18%,#39254b 0,transparent 29%),radial-gradient(circle at 15% 80%,#171220 0,transparent 28%);z-index:-2}
+a{color:inherit;text-decoration:none}.container{width:min(1240px,calc(100% - 48px));margin:auto}
+nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(8,7,11,.58);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.055)}
+.nav{height:76px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}.brand{font-size:14px;font-weight:900;letter-spacing:-.03em}.brand b{color:var(--accent)}.links{display:flex;gap:28px;font-size:11px;color:#c5bfcb}.links a{position:relative;padding:30px 0}.links a:after{content:"";position:absolute;left:0;right:100%;bottom:20px;height:1px;background:var(--accent);transition:.3s}.links a:hover:after{right:0}.nav-cta{justify-self:end;border:1px solid #5a5064;border-radius:999px;padding:10px 15px;font-size:10px;font-weight:800}
+.hero{min-height:100vh;padding-top:76px;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:40px;position:relative}.hero-copy{padding:60px 0}.eyebrow{font-size:10px;letter-spacing:.24em;color:var(--accent);font-weight:900}.hero h1{font-size:clamp(65px,10vw,142px);line-height:.76;letter-spacing:-.09em;text-transform:uppercase;margin:23px 0}.hero h1 .outline{color:transparent;-webkit-text-stroke:1px #ddd1e7}.hero-lead{max-width:550px;color:#aaa3b1;font-size:14px;line-height:1.8}.actions{margin-top:28px}.button{display:inline-flex;align-items:center;gap:9px;border:1px solid #5a5064;border-radius:999px;padding:13px 18px;font-size:10px;font-weight:900;margin-right:7px;transition:.3s}.button:hover{transform:translateY(-3px);border-color:var(--accent)}.button.primary{background:#f0ebf4;color:#111;border-color:#f0ebf4}
+.hero-art{height:650px;position:relative;display:grid;place-items:center}.orb{position:absolute;width:530px;height:530px;border-radius:50%;border:1px solid rgba(200,166,255,.18);box-shadow:0 0 110px rgba(141,100,178,.13),inset 0 0 80px rgba(200,166,255,.04)}.portrait{width:min(410px,74vw);height:550px;border-radius:48% 48% 9% 9%;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#e3d8e8 0,#a88fb1 18%,#514357 43%,#1c1722 70%,#0d0b11 100%);box-shadow:0 35px 110px rgba(151,105,191,.2)}.portrait:before{content:"";position:absolute;inset:8% 15% 0;border-radius:48% 48% 0 0;background:radial-gradient(circle at 50% 24%,rgba(255,255,255,.4),transparent 24%),linear-gradient(115deg,transparent 38%,rgba(255,255,255,.12) 50%,transparent 62%);mix-blend-mode:screen}.portrait:after{content:"VS";position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:145px;line-height:.8;font-weight:950;color:rgba(255,255,255,.065);letter-spacing:-.1em}.photo-label{position:absolute;top:30px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.2em;color:#fff8;z-index:2}.badge{position:absolute;border:1px solid #3c3445;background:rgba(15,12,19,.75);backdrop-filter:blur(12px);border-radius:13px;padding:12px 14px;font-size:9px;letter-spacing:.04em;color:#ddd4e4;box-shadow:0 15px 40px #0008}.badge.one{right:0;top:23%}.badge.two{left:0;bottom:22%}.badge.three{right:8%;bottom:6%}
+section{padding:125px 0}.section-kicker{font-size:10px;letter-spacing:.2em;color:var(--accent);font-weight:900}.heading{font-size:clamp(42px,6vw,82px);line-height:.86;letter-spacing:-.07em;margin:10px 0}.section-intro{max-width:530px;color:var(--muted);font-size:13px;line-height:1.8}
+.about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:80px;align-items:center}.profile-card{border:1px solid var(--line);background:linear-gradient(145deg,#17131d,#0e0d12);border-radius:24px;padding:30px}.profile-card .row{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:15px 0;font-size:11px}.profile-card .row:first-of-type{margin-top:20px}.profile-card .row span{color:var(--muted)}.profile-card .row strong{font-weight:800}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}.card{min-height:225px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#18141f,#0e0d12);padding:27px;transition:.35s}.card:hover{transform:translateY(-8px);border-color:#625270;box-shadow:0 25px 55px #0006}.card-num{font-size:10px;color:var(--accent);font-weight:900}.card h3{font-size:18px;margin:18px 0 10px}.card p{font-size:12px;line-height:1.75;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:35px}.pill{border:1px solid #38313f;background:#121016;padding:11px 15px;border-radius:999px;font-size:10px;color:#d4ced9;transition:.25s}.pill:hover{border-color:var(--accent);transform:translateY(-2px)}
+.project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:42px}.project{min-height:370px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(150deg,#1b1622,#0e0d12);padding:18px;display:flex;flex-direction:column;transition:.35s}.project:hover{transform:translateY(-7px);border-color:#625270}.dashboard{height:165px;border:1px solid #3c3343;border-radius:15px;padding:18px;background:linear-gradient(135deg,#16121b,#0d0c11);overflow:hidden}.dash-top{height:9px;width:42%;border-radius:99px;background:#a080c4;margin-bottom:18px}.chart{display:flex;align-items:end;gap:8px;height:92px}.chart i{display:block;width:12%;background:#5a4967;border-radius:5px 5px 0 0}.chart i:nth-child(1){height:35%}.chart i:nth-child(2){height:55%}.chart i:nth-child(3){height:45%}.chart i:nth-child(4){height:78%}.chart i:nth-child(5){height:62%}.chart i:nth-child(6){height:90%}.project h3{font-size:18px;margin:20px 0 8px}.project p{font-size:12px;line-height:1.7;color:var(--muted);flex:1}.tools{font-size:9px;color:#d2c6db;letter-spacing:.06em}.project-link{margin-top:16px;font-size:10px;color:var(--accent)}
+.timeline{margin-top:45px}.job{display:grid;grid-template-columns:220px 1fr;gap:45px;padding:30px 0;border-top:1px solid var(--line)}.job:last-child{border-bottom:1px solid var(--line)}.date{font-size:10px;color:var(--accent);font-weight:900;line-height:1.6}.job h3{font-size:21px;margin:0 0 9px}.job p{margin:0;max-width:750px;color:var(--muted);font-size:13px;line-height:1.8}
+.contact{border:1px solid #44394e;border-radius:28px;padding:55px;background:radial-gradient(circle at 80% 10%,#2a1d38,#151019 58%,#0e0c12)}.contact h2{font-size:clamp(45px,7vw,88px);line-height:.84;letter-spacing:-.08em;max-width:850px;margin:12px 0 25px}.contact p{color:#aaa3b0;max-width:650px;font-size:13px;line-height:1.8}.contact .email{font-size:18px;color:#eee3f6}
+footer{padding:40px 0 55px;border-top:1px solid #201c25;display:flex;justify-content:space-between;color:#6f6876;font-size:9px;letter-spacing:.04em}
+.reveal{opacity:0;transform:translateY(25px);transition:opacity .8s ease,transform .8s ease}.reveal.show{opacity:1;transform:none}
+@media(max-width:850px){.links{display:none}.nav{grid-template-columns:1fr auto}.hero{grid-template-columns:1fr;padding-top:100px}.hero-art{height:480px}.portrait{height:410px}.orb{width:390px;height:390px}.grid3,.project-grid,.about-grid{grid-template-columns:1fr}.job{grid-template-columns:1fr;gap:9px}.sectionhead{display:block}.container{width:min(100% - 32px,1180px)}}
 </style>
 </head>
 <body>
+<nav><div class="container nav"><a class="brand" href="#home">VENKATA SAI<b>.</b></a><div class="links"><a href="#home">HOME</a><a href="#about">ABOUT</a><a href="#expertise">EXPERTISE</a><a href="#skills">SKILLS</a><a href="#projects">PROJECTS</a><a href="#experience">EXPERIENCE</a><a href="#contact">CONTACT</a></div><a class="nav-cta" href="#contact">VIEW ME</a></div></nav>
 
-<nav>
-<div class="wrap nav">
-<div class="logo">VS<span>.</span></div>
-<div class="links" id="navLinks">
-<a href="#home">Home</a><a href="#about">About</a><a href="#expertise">Expertise</a><a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#experience">Experience</a><a href="#certifications">Certifications</a><a href="#contact">Contact</a>
-</div>
-<button class="burger" id="burgerBtn" aria-label="Menu"><span></span><span></span><span></span></button>
-</div>
-<div class="mobile-menu" id="mobileMenu">
-<a href="#home">Home</a><a href="#about">About</a><a href="#expertise">Expertise</a><a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#experience">Experience</a><a href="#certifications">Certifications</a><a href="#contact">Contact</a>
-</div>
-</nav>
+<header id="home" class="container hero">
+<div class="hero-copy reveal"><div class="eyebrow">DATA ANALYST / HYDERABAD</div><h1>DATA<br><span class="outline">ANALYST</span></h1><p class="hero-lead">Hi, I’m Venkata Sai — a Data Analyst trained professional with 2.5 years of experience in dispatch and logistics operations, focused on analytics, reporting and visualization.</p><div class="actions"><a class="button primary" href="#projects">VIEW MY WORK ↗</a><a class="button" href="#contact">CONTACT ME</a></div></div>
+<div class="hero-art reveal"><div class="orb"></div><div class="portrait"><div class="photo-label">YOUR PROFESSIONAL PHOTO</div></div><div class="badge one">EXCEL · SQL · POWER BI</div><div class="badge two">2.5 YEARS / OPERATIONS</div><div class="badge three">DATA → INSIGHT</div></div>
+</header>
 
-<header id="home" class="hero"><div class="wrap hero-grid">
-<div>
-<div class="eyebrow">DATA ANALYST PORTFOLIO</div>
-<h1>From operational data to <span class="accent">business insight.</span></h1>
-<p>Hi, I'm Venkata Sai — a Data Analyst trained professional with 2.5 years of experience in dispatch and logistics operations, now focused on analytics, reporting and visualization.</p>
-<div class="hero-actions"><a class="btn primary" href="#projects">Explore My Work</a><a class="btn" href="#contact">Let's Connect</a></div>
-</div>
-<div class="hero-photo"><img src="profile.jpg" alt="Venkata Sai"></div>
-</div></header>
+<section id="about"><div class="container about-grid"><div class="reveal"><div class="section-kicker">01 / ABOUT</div><h2 class="heading">BUILT FROM<br>REAL OPERATIONS.</h2><p class="section-intro">I combine hands-on logistics experience with modern analytics skills to understand business problems, organize data and communicate insights clearly.</p></div><div class="profile-card reveal"><div class="section-kicker">QUICK PROFILE</div><div class="row"><span>Role</span><strong>Data Analyst</strong></div><div class="row"><span>Experience</span><strong>2.5 Years</strong></div><div class="row"><span>Education</span><strong>BA · Andhra University</strong></div><div class="row"><span>Training</span><strong>Data Analytics · 2026</strong></div><div class="row"><span>Location</span><strong>Hyderabad</strong></div></div></div></section>
 
-<section id="about"><div class="wrap reveal">
-<div class="label">01 / About</div><h2 class="h2">A practical analytics mindset.</h2>
-<p class="intro">I combine real-world logistics experience with modern data analytics skills to turn business data into clear, useful information.</p>
-<div class="about-grid">
-<div></div>
-<div class="profile-card">
-<h3>Quick Profile</h3>
-<dl>
-<dt>Name</dt><dd>Venkata Sai Kaki</dd>
-<dt>Role</dt><dd>Data Analyst</dd>
-<dt>Experience</dt><dd>2.5 Years</dd>
-<dt>Education</dt><dd>BA — Andhra University</dd>
-<dt>Location</dt><dd>Medchal, Hyderabad</dd>
-<dt>Training</dt><dd>Data Analyst Course, completed 2026</dd>
-</dl>
-</div>
-</div>
-</div></section>
+<section id="expertise"><div class="container"><div class="section-kicker">02 / EXPERTISE</div><h2 class="heading">WHAT I DO.</h2><div class="grid3"><div class="card reveal"><div class="card-num">01</div><h3>DATA ANALYSIS</h3><p>Excel, MySQL, Python and Statistics for cleaning, analysis and structured business reporting.</p></div><div class="card reveal"><div class="card-num">02</div><h3>BUSINESS INTELLIGENCE</h3><p>Power BI and Tableau for dashboards, visualization and communicating useful results.</p></div><div class="card reveal"><div class="card-num">03</div><h3>OPERATIONS ANALYTICS</h3><p>Dispatch, inventory, WMS, tracking and logistics coordination experience applied to data-driven thinking.</p></div></div></div></section>
 
-<section id="expertise"><div class="wrap reveal">
-<div class="label">02 / Expertise</div><h2 class="h2">What I can work with.</h2><p class="intro">My training and professional background cover analytics tools as well as operational reporting.</p>
-<div class="cards">
-<div class="card"><h3>Data Analysis</h3><p>Excel, MySQL, Python and Statistics for cleaning, analysis and structured reporting.</p></div>
-<div class="card"><h3>Business Intelligence</h3><p>Power BI and Tableau for dashboards, visualization and communicating results.</p></div>
-<div class="card"><h3>Operations Analytics</h3><p>Dispatch, inventory, WMS, tracking and logistics coordination experience.</p></div>
-</div>
-</div></section>
+<section id="skills"><div class="container"><div class="section-kicker">03 / SKILLS</div><h2 class="heading">MY TOOLKIT.</h2><p class="section-intro">A practical combination of analytics software, reporting techniques and operations systems.</p><div class="pills reveal"><span class="pill">Excel</span><span class="pill">Power BI</span><span class="pill">Tableau</span><span class="pill">MySQL</span><span class="pill">Python</span><span class="pill">Statistics</span><span class="pill">Jira</span><span class="pill">VLOOKUP</span><span class="pill">Pivot Tables</span><span class="pill">WMS</span><span class="pill">Suvega Tracker</span><span class="pill">E-Way Bill</span><span class="pill">Dispatch Management</span><span class="pill">Logistics Coordination</span></div></div></section>
 
-<section id="skills"><div class="wrap reveal">
-<div class="label">03 / Skills</div><h2 class="h2">Tools & capabilities.</h2>
-<div class="skill-cloud">
-<span class="skill-pill">Excel</span><span class="skill-pill">Power BI</span><span class="skill-pill">Tableau</span><span class="skill-pill">MySQL</span><span class="skill-pill">Python</span><span class="skill-pill">Statistics</span><span class="skill-pill">Jira</span><span class="skill-pill">VLOOKUP</span><span class="skill-pill">Pivot Tables</span><span class="skill-pill">WMS</span><span class="skill-pill">Suvega Tracker</span><span class="skill-pill">E-Way Bill</span><span class="skill-pill">Dispatch Management</span><span class="skill-pill">Logistics Coordination</span>
-</div>
-</div></section>
+<section id="projects"><div class="container"><div class="section-kicker">04 / SELECTED WORK</div><h2 class="heading">PROJECTS.</h2><p class="section-intro">Portfolio projects ready for your real dashboard screenshots and GitHub links. No fabricated performance metrics.</p><div class="project-grid"><div class="project reveal"><div class="dashboard"><div class="dash-top"></div><div class="chart"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><h3>SALES & REVENUE DASHBOARD</h3><p>Interactive analysis of sales performance, revenue and business trends.</p><div class="tools">EXCEL · POWER BI</div><div class="project-link">PROJECT LINK →</div></div><div class="project reveal"><div class="dashboard"><div class="dash-top"></div><div class="chart"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><h3>CUSTOMER & ORDER ANALYSIS</h3><p>Analysis of customer orders, categories, revenue and performance.</p><div class="tools">EXCEL · MYSQL · POWER BI</div><div class="project-link">PROJECT LINK →</div></div><div class="project reveal"><div class="dashboard"><div class="dash-top"></div><div class="chart"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><h3>LOGISTICS OPERATIONS DASHBOARD</h3><p>Dashboard concept focused on dispatch, inventory and operational performance.</p><div class="tools">EXCEL · POWER BI</div><div class="project-link">PROJECT LINK →</div></div></div></div></section>
 
-<!-- Placeholder links below — replace # with real GitHub/demo URLs once available -->
-<section id="projects"><div class="wrap reveal">
-<div class="label">04 / Projects</div><h2 class="h2">Featured projects.</h2><p class="intro">A closer look at my analytics work.</p>
-<div class="cards">
-<div class="card"><h3>Sales & Revenue Dashboard</h3><p>Interactive dashboard for analyzing sales performance, revenue and business trends.</p><span class="tag">Excel</span><span class="tag">Power BI</span>
-<div class="proj-actions"><a class="btn small" href="#">View Project</a><a class="btn small" href="#">GitHub</a></div></div>
-<div class="card"><h3>Customer & Order Analysis</h3><p>Analysis of customer orders, categories, revenue and performance.</p><span class="tag">Excel</span><span class="tag">SQL</span><span class="tag">Power BI</span>
-<div class="proj-actions"><a class="btn small" href="#">View Project</a><a class="btn small" href="#">GitHub</a></div></div>
-<div class="card"><h3>Logistics & Operations Dashboard</h3><p>Dashboard focused on dispatch, inventory and operational performance.</p><span class="tag">Excel</span><span class="tag">Power BI</span>
-<div class="proj-actions"><a class="btn small" href="#">View Project</a><a class="btn small" href="#">GitHub</a></div></div>
-</div>
-</div></section>
+<section id="experience"><div class="container"><div class="section-kicker">05 / EXPERIENCE</div><h2 class="heading">PROFESSIONAL<br>JOURNEY.</h2><div class="timeline"><div class="job reveal"><div class="date">DEC 2025 — APR 2026<br>4 MONTHS</div><div><h3>Supervisor — Mahindra Logistics Limited / Zepto</h3><p>Supervised daily warehouse work and staff, planned dispatch operations, coordinated with transporters for on-time delivery, and prepared Excel reports using VLOOKUP and Pivot Tables.</p></div></div><div class="job reveal"><div class="date">AUG 2023 — SEP 2025<br>2 YEARS</div><div><h3>System Operator — Ratnadeep Retail Pvt Ltd</h3><p>Created E-Way Bills, used WMS and Suvega Tracker for stock and dispatch tracking, prepared daily and monthly Excel reports, and coordinated with transporters and store staff.</p></div></div></div></div></section>
 
-<section id="experience"><div class="wrap reveal">
-<div class="label">05 / Experience</div><h2 class="h2">Professional journey.</h2>
-<div class="timeline">
-<div class="job"><div class="date">DEC 2025 — APR 2026 · 4 MONTHS</div><h3>Supervisor — Mahindra Logistics Limited / Zepto, Hyderabad</h3>
-<ul><li>Supervised daily warehouse work and staff</li><li>Planned dispatch operations</li><li>Coordinated with transporters for on-time delivery</li><li>Prepared Excel reports using VLOOKUP and Pivot Tables</li></ul></div>
-<div class="job"><div class="date">AUG 2023 — SEP 2025 · 2 YEARS</div><h3>System Operator — Ratnadeep Retail Pvt Ltd</h3>
-<ul><li>Created E-Way Bills</li><li>Used WMS software and Suvega Tracker for stock and dispatch tracking</li><li>Prepared daily and monthly Excel reports</li><li>Used VLOOKUP and Pivot Tables</li><li>Coordinated with transporters and store staff</li></ul></div>
-</div>
-</div></section>
+<section id="certifications"><div class="container"><div class="section-kicker">06 / CERTIFICATION & EDUCATION</div><div class="grid3"><div class="card reveal"><div class="card-num">CERTIFICATION</div><h3>DATA ANALYST COURSE</h3><p>Completed 2026. Covered Excel, Power BI, Tableau, MySQL, Python, Statistics and Jira.</p></div><div class="card reveal"><div class="card-num">EDUCATION</div><h3>BACHELOR OF ARTS</h3><p>Andhra University.</p></div><div class="card reveal"><div class="card-num">LANGUAGES</div><h3>COMMUNICATION</h3><p>English · Telugu · Hindi</p></div></div></div></section>
 
-<section id="certifications"><div class="wrap reveal">
-<div class="label">06 / Certifications</div><h2 class="h2">Data Analyst Certification.</h2>
-<div class="cert-card"><h3>Data Analyst Certification Course · Completed 2026</h3><p>Skills covered: Excel, Power BI, Tableau, MySQL, Python, Statistics and Jira. Projects from this course were built for GitHub and LinkedIn.</p></div>
-</div></section>
+<section id="contact"><div class="container"><div class="contact reveal"><div class="section-kicker">07 / CONTACT</div><h2>LET’S BUILD SOMETHING USEFUL WITH DATA.</h2><p>I’m looking for opportunities where I can apply my analytics skills, operational experience and continue growing as a Data Analyst.</p><p class="email"><a href="mailto:sai458285@gmail.com">sai458285@gmail.com</a></p><p>+91 6281286711 · Medchal, Hyderabad – 501401</p><a class="button primary" href="mailto:sai458285@gmail.com">GET IN TOUCH ↗</a></div></div></section>
 
-<section id="contact"><div class="wrap reveal">
-<div class="contact">
-<div class="label">07 / Contact</div>
-<h2>Let's build something useful with data.</h2>
-<p>I'm looking for opportunities where I can apply my analytics skills, operational experience and continue growing as a Data Analyst.</p>
-<div class="contact-info">
-<div><strong>Email</strong>sai458285@gmail.com</div>
-<div><strong>Phone</strong>+91 6281286711</div>
-<div><strong>Location</strong>Medchal, Hyderabad – 501401</div>
-</div>
-<a class="btn primary" href="mailto:sai458285@gmail.com">Email Me</a>
-</div>
-</div></section>
-
-<footer><div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
-<span>Venkata Sai Kaki · Data Analyst Portfolio</span><span>© 2026</span>
-</div></footer>
-
+<footer class="container"><span>VENKATA SAI KAKI · DATA ANALYST</span><span>© 2026</span></footer>
 <script>
-// mobile menu
-const burger=document.getElementById('burgerBtn'),menu=document.getElementById('mobileMenu');
-burger.addEventListener('click',()=>menu.classList.toggle('open'));
-menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.classList.remove('open')));
-
-// scroll reveal
-const revealEls=document.querySelectorAll('.reveal');
-if('IntersectionObserver' in window){
-const revealObserver=new IntersectionObserver((entries)=>{
-entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-view');revealObserver.unobserve(e.target)}});
-},{threshold:0.15});
-revealEls.forEach(el=>revealObserver.observe(el));
-}else{
-revealEls.forEach(el=>el.classList.add('in-view'));
-}
-
-// active nav link
-const sections=document.querySelectorAll('section[id],header[id]');
-const navLinks=document.querySelectorAll('.links a');
-if('IntersectionObserver' in window){
-const navObserver=new IntersectionObserver((entries)=>{
-entries.forEach(entry=>{
-if(entry.isIntersecting){
-navLinks.forEach(l=>l.classList.remove('active'));
-const link=document.querySelector('.links a[href="#'+entry.target.id+'"]');
-if(link)link.classList.add('active');
-}
-});
-},{rootMargin:'-45% 0px -45% 0px'});
-sections.forEach(s=>navObserver.observe(s));
-}
+const items=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')}),{threshold:.12});
+items.forEach(x=>io.observe(x));
 </script>
-</body></html>
+</body>
+</html>
