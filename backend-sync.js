@@ -75,12 +75,11 @@
   requests.push(
     fetch(
       url +
-        '/rest/v1/experiences?select=company,job_title,location,start_date,end_date,is_current,period_label,description,sort_order,is_published&is_published=eq.true&order=sort_order.asc',
-      { headers: headers }
-    )
-      .then(function (response) {
-        if (!response.ok) throw new Error('Experience request failed');
-        return response.json();
+url +
+url +
+url +
+url +
+  '/rest/v1/experiences?select=company,job_title,location,start_date,end_date,is_current,period_label,description,responsibilities,tools,sort_order,is_published&is_published=eq.true&order=sort_order.asc',        return response.json();
       })
       .then(function (rows) {
         return {
@@ -98,8 +97,9 @@
               tagAccent: row.job_title || '',
               title: row.job_title || '',
               company: row.company || '',
-              description: row.description || ''
-            };
+description: row.description || '',
+responsibilities: row.responsibilities || [],
+tools: row.tools || []            };
           })
         };
       })
@@ -183,4 +183,85 @@
     .catch(function (error) {
       console.warn('[portfolio] Backend sync failed:', error);
     });
+})();
+(function () {
+  function showExperienceDetails() {
+    var section = document.querySelector('#experience');
+    if (!section) return;
+
+    var data;
+
+    try {
+      data = JSON.parse(localStorage.getItem('portfolio_experience') || '[]');
+    } catch (error) {
+      return;
+    }
+
+    var cards = Array.from(
+      section.querySelectorAll('div.relative.rounded-3xl')
+    );
+
+    cards.slice(0, data.length).forEach(function (card, index) {
+      if (card.querySelector('[data-backend-details]')) return;
+
+      var item = data[index];
+      if (!item) return;
+
+      var details = document.createElement('div');
+      details.setAttribute('data-backend-details', 'true');
+      details.className = 'mt-6 space-y-5';
+
+      if (item.responsibilities && item.responsibilities.length) {
+        var responsibilityTitle = document.createElement('h4');
+        responsibilityTitle.className = 'text-sm font-semibold uppercase tracking-wider';
+        responsibilityTitle.textContent = 'Responsibilities';
+
+        var list = document.createElement('ul');
+        list.className = 'mt-2 space-y-2 text-sm opacity-80';
+
+        item.responsibilities.forEach(function (value) {
+          var li = document.createElement('li');
+          li.textContent = '• ' + value;
+          list.appendChild(li);
+        });
+
+        details.appendChild(responsibilityTitle);
+        details.appendChild(list);
+      }
+
+      if (item.tools && item.tools.length) {
+        var toolsTitle = document.createElement('h4');
+        toolsTitle.className = 'text-sm font-semibold uppercase tracking-wider';
+        toolsTitle.textContent = 'Tools';
+
+        var tools = document.createElement('div');
+        tools.className = 'mt-2 flex flex-wrap gap-2';
+
+        item.tools.forEach(function (value) {
+          var chip = document.createElement('span');
+          chip.className = 'rounded-full border px-3 py-1 text-xs';
+          chip.textContent = value;
+          tools.appendChild(chip);
+        });
+
+        details.appendChild(toolsTitle);
+        details.appendChild(tools);
+      }
+
+      if (details.children.length) {
+        card.appendChild(details);
+      }
+    });
+  }
+
+  showExperienceDetails();
+
+  var observer = new MutationObserver(function () {
+    showExperienceDetails();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 })();
