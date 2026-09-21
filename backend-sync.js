@@ -264,4 +264,104 @@ tools: row.tools || []            };
     childList: true,
     subtree: true
   });
+(function () {
+  function showExperienceDetails() {
+    var section = document.querySelector('#experience');
+    if (!section) return;
+
+    var data = [];
+
+    try {
+      data = JSON.parse(
+        localStorage.getItem('portfolio_experience') || '[]'
+      );
+    } catch (error) {
+      return;
+    }
+
+    var headings = section.querySelectorAll('h3');
+
+    headings.forEach(function (heading, index) {
+      var item = data[index];
+      if (!item) return;
+
+      var card = heading.closest('div[class*="rounded-3xl"]');
+      if (!card) return;
+
+      if (card.querySelector('[data-experience-backend-details]')) {
+        return;
+      }
+
+      var details = document.createElement('div');
+      details.setAttribute(
+        'data-experience-backend-details',
+        'true'
+      );
+      details.style.marginTop = '24px';
+
+      if (
+        Array.isArray(item.responsibilities) &&
+        item.responsibilities.length
+      ) {
+        var title = document.createElement('h4');
+        title.textContent = 'Responsibilities';
+        title.style.fontWeight = '600';
+        title.style.marginBottom = '8px';
+        details.appendChild(title);
+
+        var list = document.createElement('ul');
+        list.style.marginBottom = '20px';
+        list.style.paddingLeft = '20px';
+
+        item.responsibilities.forEach(function (text) {
+          var li = document.createElement('li');
+          li.textContent = text;
+          li.style.marginBottom = '6px';
+          list.appendChild(li);
+        });
+
+        details.appendChild(list);
+      }
+
+      if (Array.isArray(item.tools) && item.tools.length) {
+        var toolsTitle = document.createElement('h4');
+        toolsTitle.textContent = 'Tools';
+        toolsTitle.style.fontWeight = '600';
+        toolsTitle.style.marginBottom = '8px';
+        details.appendChild(toolsTitle);
+
+        var tools = document.createElement('div');
+        tools.style.display = 'flex';
+        tools.style.flexWrap = 'wrap';
+        tools.style.gap = '8px';
+
+        item.tools.forEach(function (tool) {
+          var chip = document.createElement('span');
+          chip.textContent = tool;
+          chip.style.padding = '6px 12px';
+          chip.style.border = '1px solid currentColor';
+          chip.style.borderRadius = '999px';
+          chip.style.fontSize = '12px';
+          tools.appendChild(chip);
+        });
+
+        details.appendChild(tools);
+      }
+
+      if (details.children.length) {
+        card.appendChild(details);
+      }
+    });
+  }
+
+  showExperienceDetails();
+
+  var observer = new MutationObserver(function () {
+    showExperienceDetails();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 })();
