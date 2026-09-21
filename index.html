@@ -1,14 +1,780 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Venkata Sai | Data Analyst Portfolio</title>
-    <script type="module" crossorigin src="/assets/index-C0ATwljT.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-LIJml9fj.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Portfolio Admin — Venkata Sai</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ff2a2a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#ff2a2a; --bg:#0b0b0d; --panel:#141417; --panel2:#1b1b1f; --line:#28282e;
+  --fg:#f4f4f5; --mut:#8e8e99; --ok:#2fbf71; --warn:#f0a500;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box; padding-top:var(--sat); padding-bottom:var(--sab); color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(70px + var(--sat));-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.55}
+h1,h2,h3{margin:0;letter-spacing:-.025em;font-weight:800;line-height:1.15}
+a{color:var(--red)}
+img,video{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:5px}
+.hide{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+button,input,select,textarea{font-family:inherit;font-size:14px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--fg);font-weight:600;cursor:pointer;text-decoration:none;line-height:1.2}
+.btn:hover{border-color:var(--red)}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn.primary:hover{filter:brightness(1.12)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:8px}
+.btn.ghost{background:transparent}
+.btn.danger{color:#ff6b6b;border-color:#5a2222;background:transparent}
+.btn.danger:hover{background:#2a1010;border-color:#ff6b6b}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.icobtn{width:32px;height:32px;padding:0;justify-content:center;border-radius:8px;font-size:14px}
+
+/* login */
+#login{min-height:100vh;display:grid;place-items:center;padding:24px}
+#login .box{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px}
+#login .mark{width:42px;height:42px;border-radius:12px;background:var(--red);display:grid;place-items:center;
+  font-weight:900;font-size:19px;margin-bottom:16px}
+
+/* shell */
+#shell{display:none;min-height:100vh}
+#shell.on{display:block}
+.top{position:sticky;top:var(--sat);z-index:40;background:rgba(11,11,13,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;align-items:center;gap:12px;padding:12px 20px;max-width:1360px;margin:0 auto;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:-.03em}
+.logo i{width:26px;height:26px;border-radius:8px;background:var(--red);display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:900}
+.who{color:var(--mut);font-size:13px}
+.grid{display:grid;grid-template-columns:220px 1fr;gap:24px;max-width:1360px;margin:0 auto;padding:22px 20px 90px}
+.side{display:grid;gap:3px;align-content:start;position:sticky;top:calc(80px + var(--sat))}
+.side button{display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:9px;border:1px solid transparent;
+  background:transparent;color:var(--mut);font-weight:600;cursor:pointer;width:100%}
+.side button:hover{background:var(--panel2);color:var(--fg)}
+.side button.on{background:var(--red);color:#fff}
+.side .n{margin-left:auto;font-size:12px;opacity:.8;font-variant-numeric:tabular-nums}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 4px}
+.pane{min-width:0}
+.pane>h2{font-size:25px}
+.pane .sub{color:var(--mut);font-size:14px;margin:5px 0 20px}
+@media(max-width:820px){
+  .grid{grid-template-columns:1fr}
+  .side{position:static;grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto;padding-bottom:6px}
+  .side .n,.side hr{display:none}
+}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px;margin-bottom:22px}
+.stats .s{padding:16px 18px}
+.stats .s b{display:block;font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.stats .s span{color:var(--mut);font-size:13px;font-weight:600}
+
+/* rows */
+.rows{display:grid;gap:9px}
+.row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--panel);border:1px solid var(--line);border-radius:11px}
+.row.dragging{opacity:.35}
+.row.over{border-color:var(--red);box-shadow:0 0 0 2px rgba(255,42,42,.25)}
+.row .grip{cursor:grab;color:var(--mut);flex:none;user-select:none}
+.row .grip:active{cursor:grabbing}
+.row .thumb{width:46px;height:34px;border-radius:6px;background:var(--panel2);object-fit:cover;flex:none;border:1px solid var(--line)}
+.row .meta{flex:1;min-width:0}
+.row .meta b{display:block;font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .meta small{color:var(--mut);font-size:12.5px}
+.row .acts{display:flex;gap:4px;flex:none;flex-wrap:wrap;justify-content:flex-end}
+.dot{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.dot.live{color:var(--ok);border-color:#1d4d35}
+.dot.draft{color:var(--warn);border-color:#4d3c10}
+.dot.feat{color:var(--red);border-color:#4d1818}
+.empty{padding:40px;text-align:center;color:var(--mut);font-size:14.5px}
+
+/* forms */
+.form{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.f{display:grid;gap:5px;margin-bottom:15px}
+.f.full{grid-column:1/-1}
+.f label{font-size:12.5px;font-weight:700;color:var(--mut)}
+.f input[type=text],.f input[type=url],.f input[type=email],.f input[type=password],.f input[type=date],.f input[type=number],.f textarea,.f select{
+  width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)}
+.f textarea{min-height:96px;resize:vertical;line-height:1.55}
+.f .hint{color:var(--mut);font-size:12px}
+.f .check{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);cursor:pointer;font-weight:600}
+.f .check input{width:17px;height:17px;accent-color:var(--red)}
+@media(max-width:700px){.form{grid-template-columns:1fr}}
+.reps{display:grid;gap:7px}
+.rep{display:flex;gap:7px;align-items:center}
+.rep input{flex:1}
+
+/* media picker */
+.mp{border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:10px}
+.mp .bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.mp .pv{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#000}
+.mp .pv img,.mp .pv video{width:100%;max-height:230px;object-fit:contain}
+.mp .fn{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12.5px;color:var(--mut);background:var(--panel)}
+.mp .fn b{color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+
+/* media library */
+.lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.lib .it{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--panel)}
+.lib .it .box{aspect-ratio:4/3;background:#000;display:grid;place-items:center;overflow:hidden}
+.lib .it .box img,.lib .it .box video{width:100%;height:100%;object-fit:cover}
+.lib .it .cap{padding:9px 11px;font-size:12px;color:var(--mut)}
+.lib .it .cap b{display:block;color:var(--fg);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib .it .cap .r{display:flex;gap:4px;margin-top:7px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--mut);cursor:pointer;margin-bottom:18px;background:var(--panel)}
+.drop:hover,.drop.over{border-color:var(--red);color:var(--fg)}
+
+/* modal */
+.mo{position:fixed;inset:0;z-index:100;display:none;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);
+  padding:calc(18px + var(--sat)) 14px calc(18px + var(--sab));overflow-y:auto}
+.mo.on{display:block}
+.mo .sh{max-width:840px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+.mo .hd,.mo .ft{display:flex;align-items:center;gap:12px;padding:15px 20px;background:var(--panel)}
+.mo .hd{border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+.mo .ft{border-top:1px solid var(--line);justify-content:flex-end;position:sticky;bottom:0}
+.mo .hd h3{font-size:18px;flex:1;min-width:0}
+.mo .bd{padding:20px}
+.mo.small .sh{max-width:440px}
+
+.toast{position:fixed;left:50%;bottom:calc(22px + var(--sab));transform:translate(-50%,160%);background:#fff;color:#111;
+  padding:11px 20px;border-radius:99px;font-weight:700;font-size:14px;z-index:300;transition:transform .28s cubic-bezier(.2,1.2,.4,1);
+  box-shadow:0 14px 40px rgba(0,0,0,.5);max-width:92vw;text-align:center}
+.toast.on{transform:translate(-50%,0)}
+.toast.bad{background:#ff6b6b;color:#1a0505}
+.note{border:1px solid var(--line);border-left:3px solid var(--red);border-radius:9px;padding:12px 15px;color:var(--mut);
+  font-size:13.5px;background:var(--panel2);margin-bottom:18px}
+.note b{color:var(--fg)}
+.spin{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--red);border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="box">
+    <div class="mark">VS</div>
+    <h2 style="font-size:21px">Portfolio admin</h2>
+    <p class="sub" style="color:var(--mut);font-size:13.5px;margin:6px 0 20px">Sign in with your Supabase account.</p>
+    <div class="f"><label for="em">Email</label><input id="em" type="email" autocomplete="username"></div>
+    <div class="f"><label for="pwd">Password</label><input id="pwd" type="password" autocomplete="current-password"></div>
+    <button class="btn primary" id="signin" style="width:100%;justify-content:center">Sign in</button>
+    <div id="lmsg" class="hint" style="color:var(--mut);font-size:13px;margin-top:12px"></div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="top"><div class="in">
+    <div class="logo"><i>VS</i> Portfolio admin</div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span class="who" id="who"></span>
+      <a class="btn sm" id="viewsite" target="_blank" rel="noopener">Preview site</a>
+      <button class="btn sm" id="signout">Sign out</button>
+    </div>
+  </div></div>
+  <div class="grid">
+    <nav class="side" id="side"></nav>
+    <main class="pane" id="pane"></main>
+  </div>
+</div>
+
+<div class="mo" id="edit"><div class="sh">
+  <div class="hd"><h3 id="ed-t">Edit</h3><button class="btn icobtn ghost" data-x="edit">✕</button></div>
+  <div class="bd" id="ed-b"></div>
+  <div class="ft"><button class="btn" data-x="edit">Cancel</button><button class="btn primary" id="ed-save">Save</button></div>
+</div></div>
+
+<div class="mo small" id="ask"><div class="sh">
+  <div class="hd"><h3 id="ak-t">Confirm</h3></div>
+  <div class="bd" id="ak-b"></div>
+  <div class="ft"><button class="btn" data-x="ask">Cancel</button><button class="btn danger" id="ak-ok">Delete</button></div>
+</div></div>
+
+<div class="mo" id="pick"><div class="sh">
+  <div class="hd"><h3>Choose from media library</h3><button class="btn icobtn ghost" data-x="pick">✕</button></div>
+  <div class="bd" id="pk-b"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="./config.js" onerror="window.__noconfig=1"></script>
+<script>
+"use strict";
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CFG=window.PORTFOLIO_CONFIG||{};
+let sb=null, USER=null, CUR='dashboard', CACHE={}, LIB=[];
+
+function toast(m,bad){ const t=$('#toast'); t.textContent=m; t.classList.toggle('bad',!!bad); t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),3200); }
+function openMo(id){ $('#'+id).classList.add('on'); document.body.style.overflow='hidden'; }
+function closeMo(id){ $('#'+id).classList.remove('on'); if(!$$('.mo.on').length) document.body.style.overflow=''; }
+document.addEventListener('click',e=>{ const x=e.target.closest('[data-x]'); if(x) closeMo(x.dataset.x);
+  if(e.target.classList.contains('mo')) closeMo(e.target.id); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $$('.mo.on').forEach(m=>closeMo(m.id)); });
+
+/* ---------------- field helpers ---------------- */
+const F=(k,l,t,o={})=>({k,l,t,...o});
+
+const BUCKETS={image:'portfolio-images',video:'portfolio-videos',certificate:'portfolio-certificates',document:'portfolio-documents'};
+
+const SCHEMA={
+  dashboard:{label:'Dashboard',icon:'▦'},
+
+  profile:{label:'Profile & About',icon:'👤',table:'profiles',singleton:true,fields:[
+    F('name','Full name','text'),
+    F('headline','Headline','text',{hint:'e.g. Data Analyst'}),
+    F('location','Location','text'),
+    F('email','Email','text'),
+    F('phone','Phone','text'),
+    F('linkedin_url','LinkedIn URL','url'),
+    F('github_url','GitHub URL','url'),
+    F('resume_url','Resume / CV','media',{kind:'document',full:true}),
+    F('short_bio','Hero paragraph','textarea',{full:true}),
+    F('about','About paragraph','textarea',{full:true}),
+    F('profile_image_url','About image','media',{kind:'image',full:true,hint:'Currently /assets/image-DaXzU-ni.png from your bundle. Leave it alone to keep the existing image.'}),
+    F('hero_video_url','Hero video','media',{kind:'video',full:true,hint:'Currently /assets/herovideo-DoafQIuO.mp4. Autoplay, loop, muted and positioning are handled by the component, not by this field.'}),
+    F('hero_cta_primary_label','Hero button 1 label','text'),
+    F('hero_cta_primary_href','Hero button 1 link','text'),
+    F('hero_cta_secondary_label','Hero button 2 label','text'),
+    F('hero_cta_secondary_href','Hero button 2 link','text'),
+    F('about_heading','About heading','text'),
+    F('expertise_badge','Expertise badge','text'),
+    F('expertise_heading','Expertise heading','textarea',{full:true}),
+    F('expertise_subtext','Expertise subtext','textarea',{full:true}),
+    F('expertise_note','Handwritten note','text'),
+    F('skills_badge','Skills badge','text'),
+    F('skills_heading','Skills heading','text'),
+    F('meta_title','Page title (SEO)','text',{full:true}),
+    F('meta_description','Meta description (SEO)','textarea',{full:true})
+  ]},
+
+  expertise:{label:'Expertise',icon:'🎯',table:'expertise',title:'title',sub:'number',fields:[
+    F('number','Card number','text',{hint:'01 – 04, shown on the card'}),
+    F('title','Title','text'),
+    F('text','Description','textarea',{full:true}),
+    F('position_class','Layout classes','text',{full:true,hint:'Part of the existing design — the position and tilt of the card on the dotted path. Only change this if you know the layout.'}),
+    F('aos_type','Scroll animation','select',{opts:['fade-left','fade-right','fade-up','fade-in','zoom-in']}),
+    F('aos_delay','Animation delay (ms)','text'),
+    F('is_published','Show on the website','bool',{full:true})
+  ]},
+
+  skills:{label:'Skills',icon:'📐',table:'skills',title:'name',sub:'category',fields:[
+    F('name','Skill','text'),
+    F('category','Category','select',{opts:['Spreadsheets & Reporting','Databases & Querying','Data Visualization','Programming & Statistics','Data Analysis','Business / Operations'],hint:'Skills sharing a category render inside the same card.'}),
+    F('description','Description','textarea',{full:true}),
+    F('icon_url','Icon','media',{kind:'image',full:true,hint:'Only used by the four badges in the About strip.'}),
+    F('is_featured','Show as an icon badge in the About strip','bool',{full:true}),
+    F('is_published','Show on the website','bool',{full:true})
+  ]},
+
+  experiences:{label:'Experience',icon:'💼',table:'experiences',title:'job_title',sub:'company',fields:[
+    F('job_title','Job title','text'),
+    F('company','Company','text'),
+    F('location','Location','text'),
+    F('start_date','Start date','date'),
+    F('end_date','End date','date'),
+    F('is_current','This is my current role','bool',{full:true}),
+    F('period_label','Period label override','text',{full:true,hint:'Leave blank to build it from the dates.'}),
+    F('description','Description','textarea',{full:true}),
+    F('responsibilities','Responsibilities','list',{full:true}),
+    F('tools','Tools','arr',{full:true,hint:'Comma separated.'}),
+    F('is_published','Show on the website','bool',{full:true})
+  ]},
+
+  projects:{label:'Projects',icon:'📊',table:'projects',title:'title',sub:'category',thumb:'thumbnail_url',fields:[
+    F('title','Project title','text'),
+    F('slug','Slug','text',{hint:'Optional, must be unique.'}),
+    F('category','Category','text',{hint:'Shown on the card. e.g. Data Analysis, Databases'}),
+    F('episode','Episode code','text',{hint:'P01, P02 … shown on the card.'}),
+    F('match_label','Match label','text',{hint:'The small badge on the card. Currently "New".'}),
+    F('short_description','Short description','textarea',{full:true,hint:'This is the text on the project card.'}),
+    F('tags','Card tags','arr',{full:true,hint:'Comma separated. These render as the chips on the card.'}),
+    F('business_problem','Business problem','textarea',{full:true}),
+    F('full_description','Full description','textarea',{full:true}),
+    F('tools','Tools used','arr',{full:true}),
+    F('dataset','Dataset','text',{full:true}),
+    F('kpis','Key KPIs','kv',{full:true}),
+    F('insights','Key insights','list',{full:true}),
+    F('recommendations','Business recommendations','list',{full:true}),
+    F('thumbnail_url','Thumbnail','media',{kind:'image',full:true}),
+    F('demo_video_url','Demo video','media',{kind:'video',full:true,hint:'Paste a YouTube or Cloudinary URL for anything large. Upload to Supabase only for short clips.'}),
+    F('github_url','GitHub URL','url'),
+    F('live_url','Live dashboard URL','url'),
+    F('is_featured','Featured project','bool'),
+    F('is_published','Published','bool')
+  ]},
+
+  certificates:{label:'Certificates',icon:'🎓',table:'certificates',title:'title',sub:'issuer',thumb:'image_url',fields:[
+    F('title','Certificate title','text'),
+    F('issuer','Issuer','text'),
+    F('issue_date','Issue date','date'),
+    F('date_label','Date label','text',{hint:'Shown on the card. Leave blank to use the year.'}),
+    F('credential_id','Credential ID','text'),
+    F('credential_url','Credential URL','url'),
+    F('description','Description','textarea',{full:true}),
+    F('image_url','Image','media',{kind:'certificate',full:true}),
+    F('pdf_url','PDF','media',{kind:'certificate',full:true}),
+    F('is_published','Show on the website','bool',{full:true})
+  ]},
+
+  media:{label:'Media',icon:'🖼️'},
+  settings:{label:'Settings',icon:'⚙️'}
+};
+const LISTS=['expertise','skills','experiences','projects','certificates'];
+
+/* ---------------- boot ---------------- */
+(async function(){
+  if(window.__noconfig || !CFG.SUPABASE_URL || CFG.SUPABASE_URL.includes('YOUR-PROJECT')){
+    $('#lmsg').innerHTML='<b style="color:#ff6b6b">admin/config.js is missing or unedited.</b> Copy config.example.js to config.js and fill in your Supabase URL and anon key.';
+    $('#signin').disabled=true; return;
+  }
+  sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+  $('#viewsite').href=CFG.SITE_URL||'/';
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) await onSignedIn(session.user);
+  sb.auth.onAuthStateChange((_e,s)=>{ if(!s) signedOut(); });
+})();
+
+$('#signin').onclick=signIn;
+$('#pwd').addEventListener('keydown',e=>{ if(e.key==='Enter') signIn(); });
+async function signIn(){
+  const msg=$('#lmsg'); msg.textContent='Signing in…';
+  const {data,error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pwd').value});
+  if(error){ msg.innerHTML='<span style="color:#ff6b6b">'+esc(error.message)+'</span>'; return; }
+  await onSignedIn(data.user);
+}
+async function onSignedIn(user){
+  const {data:adm}=await sb.from('admins').select('user_id').eq('user_id',user.id).maybeSingle();
+  if(!adm){
+    $('#lmsg').innerHTML='<span style="color:#ff6b6b">This account is signed in but is not an admin.</span> Add its user id to the <b>admins</b> table in Supabase, then sign in again.';
+    await sb.auth.signOut(); return;
+  }
+  USER=user; $('#login').classList.add('hide'); $('#shell').classList.add('on');
+  $('#who').textContent=user.email; $('#pwd').value='';
+  await refreshAll(); renderSide(); renderPane();
+}
+function signedOut(){ USER=null; $('#shell').classList.remove('on'); $('#login').classList.remove('hide'); $('#lmsg').textContent=''; }
+$('#signout').onclick=async()=>{ await sb.auth.signOut(); signedOut(); };
+
+/* ---------------- data ---------------- */
+async function refreshAll(){
+  const jobs=LISTS.map(async k=>{
+    const {data,error}=await sb.from(SCHEMA[k].table).select('*').order('sort_order',{ascending:true});
+    if(error) throw error; CACHE[k]=data||[];
+  });
+  jobs.push((async()=>{ const {data}=await sb.from('profiles').select('*').limit(1).maybeSingle(); CACHE.profile=data||{}; })());
+  jobs.push(loadLib());
+  try{ await Promise.all(jobs); }catch(e){ toast(e.message||'Could not load content',true); }
+}
+async function loadLib(){ const {data}=await sb.from('media').select('*').order('created_at',{ascending:false}); LIB=data||[]; }
+
+/* ---------------- nav ---------------- */
+function renderSide(){
+  const item=k=>{ const s=SCHEMA[k], n=LISTS.includes(k)?(CACHE[k]||[]).length:(k==='media'?LIB.length:'');
+    return `<button data-k="${k}" class="${k===CUR?'on':''}">${s.icon} <span>${esc(s.label)}</span>${n!==''?`<span class="n">${n}</span>`:''}</button>`; };
+  $('#side').innerHTML=item('dashboard')+'<hr>'+['profile','expertise','skills','experiences','projects','certificates'].map(item).join('')+'<hr>'+item('media')+item('settings');
+}
+$('#side').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(!b)return;
+  CUR=b.dataset.k; renderSide(); renderPane(); window.scrollTo(0,0); });
+
+/* ---------------- panes ---------------- */
+function renderPane(){
+  const p=$('#pane');
+  if(CUR==='dashboard') return renderDash(p);
+  if(CUR==='media') return renderMedia(p);
+  if(CUR==='settings') return renderSettings(p);
+  if(SCHEMA[CUR].singleton) return renderSingle(p);
+  return renderList(p);
+}
+
+function renderDash(p){
+  const n=k=>(CACHE[k]||[]).length;
+  const pub=k=>(CACHE[k]||[]).filter(r=>r.is_published).length;
+  p.innerHTML=`<h2>Dashboard</h2><div class="sub">Signed in as ${esc(USER.email)}. Everything you publish here appears on the public site immediately.</div>
+    <div class="stats">
+      ${LISTS.map(k=>`<div class="card s"><b>${n(k)}</b><span>${esc(SCHEMA[k].label)} · ${pub(k)} live</span></div>`).join('')}
+      <div class="card s"><b>${LIB.length}</b><span>Media files</span></div>
+    </div>
+    <div class="note"><b>Workflow.</b> Create or edit an item, untick <b>Published</b> while it is a draft, use <b>Preview site</b> to check it, then tick Published when it is ready. Unpublished rows are invisible to the public because of the database policy, not just the UI.</div>
+    <div class="card" style="padding:18px">
+      <h3 style="font-size:16px;margin-bottom:10px">Recently updated</h3>
+      <div class="rows">${recent().map(r=>
+        `<div class="row"><div class="meta"><b>${esc(r.label)}</b><small>${esc(r.section)} · ${new Date(r.updated_at).toLocaleString()}</small></div>
+         <span class="dot ${r.is_published?'live':'draft'}">${r.is_published?'Live':'Draft'}</span></div>`).join('')||'<div class="empty">Nothing yet.</div>'}
+      </div></div>`;
+}
+function recent(){
+  const all=[];
+  LISTS.forEach(k=>(CACHE[k]||[]).forEach(r=>all.push({
+    label:r[SCHEMA[k].title]||'Untitled', section:SCHEMA[k].label, updated_at:r.updated_at, is_published:r.is_published})));
+  return all.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at)).slice(0,6);
+}
+
+function renderSingle(p){
+  const s=SCHEMA[CUR];
+  p.innerHTML=`<h2>${esc(s.label)}</h2><div class="sub">One record. Changes go live as soon as you save.</div>
+    <div class="note"><b>Your existing media is safe.</b> The image and video fields below are pre-filled with the paths bundled in your build. Leave them as they are and the site keeps using the files already in <b>/assets</b>.</div>
+    <div class="card" style="padding:20px"><div class="form" id="sform">${s.fields.map(f=>fieldHTML(f,CACHE.profile[f.k])).join('')}</div>
+    <div style="display:flex;gap:9px;margin-top:6px"><button class="btn primary" id="sv">Save profile</button>
+    <a class="btn" id="pv2" target="_blank" rel="noopener" href="${esc(CFG.SITE_URL||'/')}">Preview site</a></div></div>`;
+  wireFields(p);
+  $('#sv').onclick=async()=>{
+    const vals=readForm($('#sform'),s.fields);
+    const id=CACHE.profile.id;
+    const q = id ? sb.from('profiles').update(vals).eq('id',id).select().maybeSingle()
+                 : sb.from('profiles').insert(vals).select().maybeSingle();
+    const {data,error}=await q;
+    if(error) return toast(error.message,true);
+    CACHE.profile=data; toast('Profile saved');
+  };
+}
+
+function renderList(p){
+  const s=SCHEMA[CUR], rows=CACHE[CUR]||[];
+  p.innerHTML=`<h2>${esc(s.label)}</h2>
+    <div class="sub">${rows.length} item${rows.length===1?'':'s'}. Drag the handle to reorder — the public site uses the same order.</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn primary" id="new">+ Add ${esc(s.label.replace(/e?s$/,'').toLowerCase())}</button>
+      <a class="btn" target="_blank" rel="noopener" href="${esc(CFG.SITE_URL||'/')}">Preview site</a>
+    </div>
+    <div class="rows" id="rows">${rows.map((r,i)=>rowHTML(s,r,i)).join('')||'<div class="card empty">Nothing here yet. Add your first one.</div>'}</div>`;
+  $('#new').onclick=()=>openEditor(null);
+  wireRows(s);
+}
+function rowHTML(s,r,i){
+  const th=s.thumb&&r[s.thumb];
+  return `<div class="row" draggable="true" data-i="${i}" data-id="${r.id}">
+    <span class="grip">⣿</span>
+    ${s.thumb?(th?`<img class="thumb" src="${esc(th)}" alt="">`:`<span class="thumb"></span>`):''}
+    <div class="meta"><b>${esc(r[s.title]||'Untitled')}</b><small>${esc(r[s.sub]||'')}</small></div>
+    ${r.is_featured?'<span class="dot feat">Featured</span>':''}
+    <span class="dot ${r.is_published?'live':'draft'}">${r.is_published?'Live':'Draft'}</span>
+    <div class="acts">
+      <button class="btn icobtn sm" data-a="pub" title="${r.is_published?'Unpublish':'Publish'}">${r.is_published?'👁':'🚫'}</button>
+      <button class="btn icobtn sm" data-a="edit" title="Edit">✏️</button>
+      <button class="btn icobtn sm" data-a="dup" title="Duplicate">📋</button>
+      <button class="btn icobtn sm danger" data-a="del" title="Delete">🗑️</button>
+    </div></div>`;
+}
+function wireRows(s){
+  const list=$('#rows'); if(!list) return;
+  list.onclick=async e=>{
+    const b=e.target.closest('[data-a]'); if(!b)return;
+    const row=b.closest('.row'), rec=(CACHE[CUR]||[])[+row.dataset.i], a=b.dataset.a;
+    if(a==='edit') return openEditor(rec);
+    if(a==='pub') return setField(rec,{is_published:!rec.is_published});
+    if(a==='dup') return duplicate(s,rec);
+    if(a==='del') return askDelete(s,rec);
+  };
+  let from=null;
+  list.addEventListener('dragstart',e=>{ const r=e.target.closest('.row'); if(!r)return;
+    from=+r.dataset.i; r.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',''); });
+  list.addEventListener('dragend',()=>$$('.row',list).forEach(r=>r.classList.remove('dragging','over')));
+  list.addEventListener('dragover',e=>{ e.preventDefault(); const r=e.target.closest('.row'); if(!r)return;
+    $$('.row',list).forEach(x=>x.classList.remove('over')); r.classList.add('over'); });
+  list.addEventListener('drop',async e=>{ e.preventDefault(); const r=e.target.closest('.row'); if(!r||from==null)return;
+    const to=+r.dataset.i, arr=CACHE[CUR];
+    if(to!==from){ arr.splice(to,0,arr.splice(from,1)[0]); renderList($('#pane')); await saveOrder(s); }
+    from=null; });
+}
+async function saveOrder(s){
+  const arr=CACHE[CUR];
+  const ups=arr.map((r,i)=>({id:r.id,sort_order:i+1}));
+  for(const u of ups){ const {error}=await sb.from(s.table).update({sort_order:u.sort_order}).eq('id',u.id);
+    if(error){ toast(error.message,true); return; } }
+  arr.forEach((r,i)=>r.sort_order=i+1);
+  toast('Order saved');
+}
+async function setField(rec,patch){
+  const s=SCHEMA[CUR];
+  const {data,error}=await sb.from(s.table).update(patch).eq('id',rec.id).select().maybeSingle();
+  if(error) return toast(error.message,true);
+  Object.assign(rec,data); renderSide(); renderList($('#pane'));
+  toast(patch.is_published===undefined?'Saved':(patch.is_published?'Published':'Unpublished'));
+}
+async function duplicate(s,rec){
+  const copy={...rec}; delete copy.id; delete copy.created_at; delete copy.updated_at;
+  copy[s.title]=(rec[s.title]||'Untitled')+' Copy';
+  copy.is_published=false; copy.is_featured=false;
+  copy.sort_order=(rec.sort_order||0)+1;
+  if('slug' in copy && copy.slug) copy.slug=copy.slug+'-copy-'+Math.random().toString(36).slice(2,6);
+  const {data,error}=await sb.from(s.table).insert(copy).select().maybeSingle();
+  if(error) return toast(error.message,true);
+  const i=CACHE[CUR].findIndex(r=>r.id===rec.id);
+  CACHE[CUR].splice(i+1,0,data);
+  renderSide(); renderList($('#pane')); await saveOrder(s);
+  toast('Duplicated as a draft — the original is unchanged');
+}
+function askDelete(s,rec){
+  $('#ak-t').textContent='Delete this '+s.label.replace(/e?s$/,'').toLowerCase()+'?';
+  $('#ak-b').innerHTML=`<p style="margin:0 0 10px">Are you sure you want to delete <b>${esc(rec[s.title]||'this item')}</b>?</p>
+    <p style="margin:0;color:var(--mut);font-size:13.5px">This removes the record permanently. Any uploaded files stay in your media library.</p>`;
+  $('#ak-ok').textContent='Delete';
+  $('#ak-ok').onclick=async()=>{
+    const {error}=await sb.from(s.table).delete().eq('id',rec.id);
+    if(error) return toast(error.message,true);
+    CACHE[CUR]=CACHE[CUR].filter(r=>r.id!==rec.id);
+    closeMo('ask'); renderSide(); renderList($('#pane')); toast('Deleted');
+  };
+  openMo('ask');
+}
+</script>
+<script>
+/* ---------------- field rendering ---------------- */
+function fieldHTML(f,val){
+  const id='ff_'+f.k, lab=`<label for="${id}">${esc(f.l)}</label>`;
+  const hint=f.hint?`<div class="hint">${esc(f.hint)}</div>`:'';
+  let c='';
+  switch(f.t){
+    case 'textarea': c=`<textarea id="${id}" data-k="${f.k}" data-t="textarea">${esc(val)}</textarea>`; break;
+    case 'bool': return `<div class="f full"><label class="check"><input type="checkbox" id="${id}" data-k="${f.k}" data-t="bool" ${val?'checked':''}> ${esc(f.l)}</label>${hint}</div>`;
+    case 'date': c=`<input id="${id}" data-k="${f.k}" data-t="date" type="date" value="${esc(val?String(val).slice(0,10):'')}">`; break;
+    case 'select': c=`<select id="${id}" data-k="${f.k}" data-t="text">${(f.opts||[]).map(o=>`<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select>`; break;
+    case 'arr': c=`<input id="${id}" data-k="${f.k}" data-t="arr" type="text" value="${esc((val||[]).join(', '))}">`; break;
+    case 'list': {
+      const rows=(val&&val.length?val:['']).map(v=>repRow('list',v)).join('');
+      c=`<div class="reps" data-k="${f.k}" data-t="list">${rows}<div><button type="button" class="btn sm addrep" data-kind="list">Add line</button></div></div>`; break; }
+    case 'kv': {
+      const rows=(val&&val.length?val:[{label:'',value:''}]).map(v=>repRow('kv',v)).join('');
+      c=`<div class="reps" data-k="${f.k}" data-t="kv">${rows}<div><button type="button" class="btn sm addrep" data-kind="kv">Add KPI</button></div></div>`; break; }
+    case 'media': c=mediaHTML(f,val); break;
+    default: c=`<input id="${id}" data-k="${f.k}" data-t="text" type="${f.t==='url'?'url':'text'}" value="${esc(val)}">`;
+  }
+  return `<div class="f ${f.full?'full':''}">${lab}${c}${hint}</div>`;
+}
+function repRow(kind,v){
+  if(kind==='list') return `<div class="rep"><input type="text" data-s="v" value="${esc(v)}"><button type="button" class="btn sm rmrep">✕</button></div>`;
+  return `<div class="rep"><input type="text" data-s="label" placeholder="KPI name" value="${esc(v&&v.label)}">
+    <input type="text" data-s="value" placeholder="Result" value="${esc(v&&v.value)}"><button type="button" class="btn sm rmrep">✕</button></div>`;
+}
+function mediaHTML(f,val){
+  return `<div class="mp" data-k="${f.k}" data-t="media" data-kind="${esc(f.kind||'image')}" data-val="${esc(val)}">
+    <div class="bar">
+      <button type="button" class="btn sm mUp">Upload file</button>
+      <button type="button" class="btn sm mPick">Choose from library</button>
+      <button type="button" class="btn sm mClear">Clear</button>
+    </div>
+    <input type="text" class="mUrl" placeholder="…or paste a URL (YouTube, Cloudinary, /assets/…)" value="${esc(val)}">
+    <div class="pv" style="margin-top:9px"></div></div>`;
+}
+function paintMedia(w){
+  const v=w.dataset.val, pv=$('.pv',w);
+  if(!v){ pv.innerHTML=''; pv.style.display='none'; return; }
+  pv.style.display='';
+  const yt=/(?:youtube\.com|youtu\.be)/i.test(v);
+  const isImg=/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(v)||/^data:image\//.test(v);
+  const isVid=/\.(mp4|webm|mov)(\?|$)/i.test(v);
+  const body = yt ? '' : isImg ? `<img src="${esc(v)}" alt="Preview">`
+    : isVid ? `<video src="${esc(v)}" controls playsinline muted preload="metadata"></video>` : '';
+  pv.innerHTML=body+`<div class="fn"><b>${esc(v.length>70?v.slice(0,67)+'…':v)}</b>
+    <a href="${esc(v)}" target="_blank" rel="noopener" class="btn sm" style="margin-left:auto">Open</a></div>`;
+}
+function wireFields(root){ $$('.mp',root).forEach(paintMedia); }
+
+function readForm(root,fields){
+  const out={};
+  for(const f of fields){
+    const el=$(`[data-k="${f.k}"]`,root); if(!el) continue;
+    switch(f.t){
+      case 'bool': out[f.k]=el.checked; break;
+      case 'date': out[f.k]=el.value||null; break;
+      case 'arr': out[f.k]=el.value.split(',').map(s=>s.trim()).filter(Boolean); break;
+      case 'list': out[f.k]=$$('.rep',el).map(r=>$('[data-s="v"]',r).value.trim()).filter(Boolean); break;
+      case 'kv': out[f.k]=$$('.rep',el).map(r=>({label:$('[data-s="label"]',r).value.trim(),value:$('[data-s="value"]',r).value.trim()})).filter(o=>o.label||o.value); break;
+      case 'media': out[f.k]=el.dataset.val||null; break;
+      default: out[f.k]=el.value.trim()===''?null:el.value.trim();
+    }
+  }
+  return out;
+}
+
+/* repeatable + media interactions */
+document.addEventListener('click',async e=>{
+  const add=e.target.closest('.addrep');
+  if(add){ const box=add.closest('.reps');
+    box.insertBefore(elFrom(repRow(add.dataset.kind,add.dataset.kind==='kv'?{label:'',value:''}:'')),add.parentElement); return; }
+  const rm=e.target.closest('.rmrep'); if(rm){ rm.closest('.rep').remove(); return; }
+  const w=e.target.closest('.mp'); if(!w) return;
+  if(e.target.closest('.mClear')){ w.dataset.val=''; $('.mUrl',w).value=''; paintMedia(w); return; }
+  if(e.target.closest('.mUp')){ uploadInto(w); return; }
+  if(e.target.closest('.mPick')){ pickInto(w); return; }
+});
+document.addEventListener('input',e=>{
+  const w=e.target.closest('.mp');
+  if(w&&e.target.classList.contains('mUrl')){ w.dataset.val=e.target.value.trim(); clearTimeout(w._t); w._t=setTimeout(()=>paintMedia(w),450); }
+});
+function elFrom(h){ const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+
+/* ---------------- item editor ---------------- */
+let ED={s:null,rec:null,isNew:false};
+function openEditor(rec){
+  const s=SCHEMA[CUR];
+  ED={s,rec:rec||{is_published:false},isNew:!rec};
+  $('#ed-t').textContent=(rec?'Edit ':'New ')+s.label.replace(/e?s$/,'').toLowerCase();
+  $('#ed-b').innerHTML=`<div class="form" id="eform">${s.fields.map(f=>fieldHTML(f,ED.rec[f.k])).join('')}</div>`;
+  wireFields($('#ed-b'));
+  openMo('edit');
+}
+$('#ed-save').onclick=async()=>{
+  const s=ED.s, btn=$('#ed-save');
+  const vals=readForm($('#eform'),s.fields);
+  if(!vals[s.title]) return toast('Give it a '+s.fields.find(f=>f.k===s.title).l.toLowerCase()+' first',true);
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving';
+  try{
+    if(s.table==='projects' && vals.is_featured){
+      await sb.from('projects').update({is_featured:false}).neq('id',ED.rec.id||'00000000-0000-0000-0000-000000000000');
+      (CACHE.projects||[]).forEach(r=>r.is_featured=false);
+    }
+    let out;
+    if(ED.isNew){
+      vals.sort_order=(CACHE[CUR]||[]).length+1;
+      const {data,error}=await sb.from(s.table).insert(vals).select().maybeSingle();
+      if(error) throw error; out=data; CACHE[CUR].push(out);
+    } else {
+      const {data,error}=await sb.from(s.table).update(vals).eq('id',ED.rec.id).select().maybeSingle();
+      if(error) throw error; out=data; Object.assign(ED.rec,out);
+    }
+    closeMo('edit'); renderSide(); renderPane();
+    toast(out.is_published?'Saved and live':'Saved as a draft');
+  }catch(err){ toast(err.message||'Could not save',true); }
+  finally{ btn.disabled=false; btn.textContent='Save'; }
+};
+
+/* ---------------- media library ---------------- */
+function kindOf(file){
+  if(/^image\//.test(file.type)) return 'image';
+  if(/^video\//.test(file.type)) return 'video';
+  if(file.type==='application/pdf') return 'certificate';
+  return 'document';
+}
+async function uploadFile(file,kind){
+  kind=kind||kindOf(file);
+  const bucket=BUCKETS[kind]||BUCKETS.document;
+  const safe=file.name.toLowerCase().replace(/[^a-z0-9.]+/g,'-').replace(/^-|-$/g,'');
+  const path=`${new Date().getFullYear()}/${Date.now()}-${safe}`;
+  const {error}=await sb.storage.from(bucket).upload(path,file,{cacheControl:'31536000',upsert:false});
+  if(error) throw error;
+  const {data:{publicUrl}}=sb.storage.from(bucket).getPublicUrl(path);
+  const row={bucket,path,public_url:publicUrl,file_name:file.name,mime_type:file.type,size_bytes:file.size,kind};
+  const {data,error:e2}=await sb.from('media').insert(row).select().maybeSingle();
+  if(e2) throw e2;
+  LIB.unshift(data); return data;
+}
+function uploadInto(w){
+  const kind=w.dataset.kind;
+  const accept={image:'image/*',video:'video/*',certificate:'application/pdf,image/*',document:'application/pdf,.doc,.docx'}[kind]||'';
+  const inp=document.createElement('input'); inp.type='file'; inp.accept=accept;
+  inp.onchange=async()=>{
+    const f=inp.files[0]; if(!f) return;
+    toast('Uploading '+f.name+'…');
+    try{ const m=await uploadFile(f,kind); w.dataset.val=m.public_url; $('.mUrl',w).value=m.public_url; paintMedia(w); toast('Uploaded'); }
+    catch(err){ toast(err.message||'Upload failed',true); }
+  };
+  inp.click();
+}
+function pickInto(w){
+  const kind=w.dataset.kind;
+  const items=LIB.filter(m=>kind==='certificate'?['image','certificate'].includes(m.kind):m.kind===kind);
+  $('#pk-b').innerHTML=items.length?`<div class="lib">${items.map(m=>libItem(m,true)).join('')}</div>`
+    :'<div class="empty">Nothing of this type in the library yet. Use Upload file instead.</div>';
+  $('#pk-b').onclick=e=>{ const b=e.target.closest('[data-pick]'); if(!b)return;
+    w.dataset.val=b.dataset.pick; $('.mUrl',w).value=b.dataset.pick; paintMedia(w); closeMo('pick'); };
+  openMo('pick');
+}
+function libItem(m,pick){
+  const box=m.kind==='video'?`<video src="${esc(m.public_url)}" muted preload="metadata"></video>`
+    :(m.kind==='image'||/^image\//.test(m.mime_type||''))?`<img src="${esc(m.public_url)}" alt="${esc(m.file_name)}" loading="lazy">`
+    :`<div style="font-size:30px">📄</div>`;
+  return `<div class="it"><div class="box">${box}</div><div class="cap">
+    <b title="${esc(m.file_name)}">${esc(m.file_name)}</b>${(m.size_bytes/1048576).toFixed(2)} MB · ${esc(m.kind)}
+    <div class="r">${pick?`<button class="btn sm primary" data-pick="${esc(m.public_url)}" style="flex:1;justify-content:center">Use this</button>`
+      :`<button class="btn sm" data-copy="${esc(m.public_url)}">Copy URL</button>
+        <button class="btn sm danger" data-del="${esc(m.id)}">Delete</button>`}</div></div></div>`;
+}
+function renderMedia(p){
+  p.innerHTML=`<h2>Media</h2><div class="sub">${LIB.length} file${LIB.length===1?'':'s'} in Supabase Storage.</div>
+    <div class="note"><b>Your bundled files are not listed here.</b> The hero video and images shipped inside <b>/assets</b> still load straight from your site and keep working. This library is for anything new you upload.</div>
+    <div class="drop" id="drop">Drop files here, or click to choose.<br><span style="font-size:12.5px">Images, videos, PDFs. Large videos are better hosted on YouTube or Cloudinary.</span></div>
+    <div class="lib" id="lib">${LIB.map(m=>libItem(m,false)).join('')||'<div class="card empty" style="grid-column:1/-1">Nothing uploaded yet.</div>'}</div>`;
+  const drop=$('#drop');
+  drop.onclick=()=>{ const i=document.createElement('input'); i.type='file'; i.multiple=true;
+    i.onchange=()=>handleFiles(i.files); i.click(); };
+  drop.addEventListener('dragover',e=>{ e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+  drop.addEventListener('drop',e=>{ e.preventDefault(); drop.classList.remove('over'); handleFiles(e.dataTransfer.files); });
+  $('#lib').onclick=async e=>{
+    const c=e.target.closest('[data-copy]');
+    if(c){ try{ await navigator.clipboard.writeText(c.dataset.copy); toast('URL copied'); }
+      catch(_){ prompt('Copy this URL', c.dataset.copy); } return; }
+    const d=e.target.closest('[data-del]'); if(d) askDeleteMedia(LIB.find(m=>m.id===d.dataset.del));
+  };
+}
+async function handleFiles(files){
+  for(const f of files){
+    toast('Uploading '+f.name+'…');
+    try{ await uploadFile(f); }catch(err){ toast(err.message||('Could not upload '+f.name),true); }
+  }
+  renderSide(); renderMedia($('#pane')); toast('Upload complete');
+}
+async function askDeleteMedia(m){
+  if(!m) return;
+  $('#ak-t').textContent='Delete this file?';
+  $('#ak-b').innerHTML='<div class="empty"><span class="spin"></span> Checking where this file is used…</div>';
+  $('#ak-ok').onclick=null; openMo('ask');
+  const {data:uses,error}=await sb.rpc('media_usage',{p_url:m.public_url});
+  const inUse=!error&&uses&&uses.length;
+  $('#ak-b').innerHTML=`<p style="margin:0 0 12px">Delete <b>${esc(m.file_name)}</b> from storage?</p>
+    ${inUse?`<div class="note" style="border-left-color:var(--warn)"><b>This file is still in use.</b> Deleting it will leave a broken image or link in:
+      <ul style="margin:8px 0 0;padding-left:18px">${uses.map(u=>`<li>${esc(u.source)} — ${esc(u.label)}</li>`).join('')}</ul></div>`
+      :'<p style="margin:0;color:var(--mut);font-size:13.5px">Nothing currently references this file.</p>'}`;
+  $('#ak-ok').textContent=inUse?'Delete anyway':'Delete';
+  $('#ak-ok').onclick=async()=>{
+    const {error:se}=await sb.storage.from(m.bucket).remove([m.path]);
+    if(se) return toast(se.message,true);
+    await sb.from('media').delete().eq('id',m.id);
+    LIB=LIB.filter(x=>x.id!==m.id);
+    closeMo('ask'); renderSide(); renderMedia($('#pane')); toast('File deleted');
+  };
+}
+
+/* ---------------- settings ---------------- */
+function renderSettings(p){
+  p.innerHTML=`<h2>Settings</h2><div class="sub">Account and connection.</div>
+    <div class="card" style="padding:20px;margin-bottom:16px">
+      <h3 style="font-size:16px;margin-bottom:12px">Account</h3>
+      <div class="f"><label>Signed in as</label><input type="text" value="${esc(USER.email)}" readonly></div>
+      <div class="f"><label>Change password</label><input id="np" type="password" placeholder="New password, at least 8 characters"></div>
+      <button class="btn primary" id="chp">Update password</button>
+    </div>
+    <div class="card" style="padding:20px;margin-bottom:16px">
+      <h3 style="font-size:16px;margin-bottom:12px">Connection</h3>
+      <div class="f"><label>Supabase project</label><input type="text" value="${esc(CFG.SUPABASE_URL)}" readonly></div>
+      <div class="hint" style="color:var(--mut);font-size:13px">The anon key is public by design. Your data is protected by Row Level Security, and only accounts listed in the <b>admins</b> table can write.</div>
+    </div>
+    <div class="card" style="padding:20px">
+      <h3 style="font-size:16px;margin-bottom:12px">Export</h3>
+      <p style="color:var(--mut);font-size:13.5px;margin-top:0">Download everything as JSON for a backup.</p>
+      <button class="btn" id="exp">Export all content</button>
+    </div>`;
+  $('#chp').onclick=async()=>{
+    const v=$('#np').value;
+    if(v.length<8) return toast('Use at least 8 characters',true);
+    const {error}=await sb.auth.updateUser({password:v});
+    if(error) return toast(error.message,true);
+    $('#np').value=''; toast('Password updated');
+  };
+  $('#exp').onclick=()=>{
+    const blob=new Blob([JSON.stringify({profile:CACHE.profile,...Object.fromEntries(LISTS.map(k=>[k,CACHE[k]])),media:LIB},null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='portfolio-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast('Backup downloaded');
+  };
+}
+</script>
+</body>
 </html>
