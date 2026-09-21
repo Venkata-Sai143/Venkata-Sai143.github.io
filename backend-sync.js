@@ -265,103 +265,125 @@ tools: row.tools || []            };
     subtree: true
   });
 (function () {
-  function showExperienceDetails() {
-    var section = document.querySelector('#experience');
-    if (!section) return;
+  function loadExperienceDetails() {
+    var config = window.PORTFOLIO_CONFIG;
+    if (!config) return;
 
-    var data = [];
+    var url = config.SUPABASE_URL.replace(/\/$/, '');
+    var key = config.SUPABASE_ANON_KEY;
 
-    try {
-      data = JSON.parse(
-        localStorage.getItem('portfolio_experience') || '[]'
-      );
-    } catch (error) {
-      return;
-    }
-
-    var headings = section.querySelectorAll('h3');
-
-    headings.forEach(function (heading, index) {
-      var item = data[index];
-      if (!item) return;
-
-      var card = heading.closest('div[class*="rounded-3xl"]');
-      if (!card) return;
-
-      if (card.querySelector('[data-experience-backend-details]')) {
-        return;
+    fetch(
+      url +
+        '/rest/v1/experiences?select=job_title,responsibilities,tools&is_published=eq.true&order=sort_order.asc',
+      {
+        headers: {
+          apikey: key,
+          Authorization: 'Bearer ' + key
+        }
       }
+    )
+      .then(function (response) {
+        if (!response.ok) throw new Error('Experience details failed');
+        return response.json();
+      })
+      .then(function (rows) {
+        var section = document.querySelector('#experience');
+        if (!section) return;
 
-      var details = document.createElement('div');
-      details.setAttribute(
-        'data-experience-backend-details',
-        'true'
-      );
-      details.style.marginTop = '24px';
+        var headings = section.querySelectorAll('h3');
 
-      if (
-        Array.isArray(item.responsibilities) &&
-        item.responsibilities.length
-      ) {
-        var title = document.createElement('h4');
-        title.textContent = 'Responsibilities';
-        title.style.fontWeight = '600';
-        title.style.marginBottom = '8px';
-        details.appendChild(title);
+        rows.forEach(function (row) {
+          var heading = Array.from(headings).find(function (h) {
+            return h.textContent.trim() === row.job_title;
+          });
 
-        var list = document.createElement('ul');
-        list.style.marginBottom = '20px';
-        list.style.paddingLeft = '20px';
+          if (!heading) return;
 
-        item.responsibilities.forEach(function (text) {
-          var li = document.createElement('li');
-          li.textContent = text;
-          li.style.marginBottom = '6px';
-          list.appendChild(li);
+          var card = heading.closest('div[class*="rounded-3xl"]');
+          if (!card) return;
+
+          var old = card.querySelector('[data-backend-experience-details]');
+          if (old) old.remove();
+
+          var details = document.createElement('div');
+          details.setAttribute(
+            'data-backend-experience-details',
+            'true'
+          );
+          details.style.marginTop = '24px';
+
+          if (row.responsibilities && row.responsibilities.length) {
+            var title = document.createElement('h4');
+            title.textContent = 'Responsibilities';
+            title.style.fontWeight = '600';
+            title.style.marginBottom = '10px';
+
+            var list = document.createElement('ul');
+            list.style.paddingLeft = '20px';
+            list.style.marginBottom = '20px';
+
+            row.responsibilities.forEach(function (item) {
+              var li = document.createElement('li');
+              li.textContent = item;
+              li.style.marginBottom = '6px';
+              list.appendChild(li);
+            });
+
+            details.appendChild(title);
+            details.appendChild(list);
+          }
+
+          if (row.tools && row.tools.length) {
+            var toolsTitle = document.createElement('h4');
+            toolsTitle.textContent = 'Tools';
+            toolsTitle.style.fontWeight = '600';
+            toolsTitle.style.marginBottom = '10px';
+
+            var tools = document.createElement('div');
+            tools.style.display = 'flex';
+            tools.style.flexWrap = 'wrap';
+            tools.style.gap = '8px';
+
+            row.tools.forEach(function (item) {
+              var chip = document.createElement('span');
+              chip.textContent = item;
+              chip.style.padding = '6px 12px';
+              chip.style.border = '1px solid currentColor';
+              chip.style.borderRadius = '999px';
+              chip.style.fontSize = '12px';
+              tools.appendChild(chip);
+            });
+
+            details.appendChild(toolsTitle);
+            details.appendChild(tools);
+          }
+
+          if (details.children.length) {
+            card.appendChild(details);
+          }
         });
+      })
+      .catch(function (error) {
+        console.warn('[portfolio] Experience details failed:', error);
+      });
+  }
 
-        details.appendChild(list);
-      }
+  function start() {
+    loadExperienceDetails();
 
-      if (Array.isArray(item.tools) && item.tools.length) {
-        var toolsTitle = document.createElement('h4');
-        toolsTitle.textContent = 'Tools';
-        toolsTitle.style.fontWeight = '600';
-        toolsTitle.style.marginBottom = '8px';
-        details.appendChild(toolsTitle);
+    var observer = new MutationObserver(function () {
+      loadExperienceDetails();
+    });
 
-        var tools = document.createElement('div');
-        tools.style.display = 'flex';
-        tools.style.flexWrap = 'wrap';
-        tools.style.gap = '8px';
-
-        item.tools.forEach(function (tool) {
-          var chip = document.createElement('span');
-          chip.textContent = tool;
-          chip.style.padding = '6px 12px';
-          chip.style.border = '1px solid currentColor';
-          chip.style.borderRadius = '999px';
-          chip.style.fontSize = '12px';
-          tools.appendChild(chip);
-        });
-
-        details.appendChild(tools);
-      }
-
-      if (details.children.length) {
-        card.appendChild(details);
-      }
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
     });
   }
 
-  showExperienceDetails();
-
-  var observer = new MutationObserver(function () {
-    showExperienceDetails();
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
 })();
