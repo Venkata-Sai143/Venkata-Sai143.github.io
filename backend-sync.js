@@ -343,8 +343,12 @@ var headings = Array.from(
 
           if (!heading) return;
 
-          var card = heading.closest('div[class*="rounded-3xl"]') || heading.closest('div');
-          if (!card) return;
+var card =
+    heading.closest('div[class*="rounded-3xl"]') ||
+    heading.closest('article') ||
+    heading.parentElement?.parentElement?.parentElement ||
+    heading.parentElement?.parentElement ||
+    heading.parentElement;          if (!card) return;
 
           var old = card.querySelector('[data-backend-experience-details]');
           if (old) old.remove();
