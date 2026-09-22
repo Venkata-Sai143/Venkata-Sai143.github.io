@@ -1,196 +1,12 @@
 (function () {
-  var config = window.PORTFOLIO_CONFIG;
+  var running = false;
 
-  if (!config || !config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) {
-    return;
-  }
-
-  var url = config.SUPABASE_URL.replace(/\/$/, '');
-  var key = config.SUPABASE_ANON_KEY;
-
-  var headers = {
-    apikey: key,
-    Authorization: 'Bearer ' + key
-  };
-
-  function save(name, value) {
-    try {
-      var newData = JSON.stringify(value);
-      var oldData = localStorage.getItem(name);
-
-      if (oldData !== newData) {
-        localStorage.setItem(name, newData);
-        return true;
-      }
-    } catch (error) {
-      console.warn('[portfolio] Local storage error:', error);
-    }
-
-    return false;
-  }
-
-  var requests = [];
-
-  // =========================
-  // SKILLS
-  // =========================
-  requests.push(
-    fetch(
-      url +
-        '/rest/v1/skills?select=name,category,sort_order,is_published&is_published=eq.true&order=sort_order.asc',
-      { headers: headers }
-    )
-      .then(function (response) {
-        if (!response.ok) throw new Error('Skills request failed');
-        return response.json();
-      })
-      .then(function (rows) {
-        var order = [];
-        var groups = {};
-
-        rows.forEach(function (row) {
-          if (!groups[row.category]) {
-            groups[row.category] = [];
-            order.push(row.category);
-          }
-
-          groups[row.category].push(row.name);
-        });
-
-        return {
-          key: 'portfolio_skills',
-          data: order.map(function (category) {
-            return {
-              category: category,
-              skills: groups[category]
-            };
-          })
-        };
-      })
-  );
-
-  // =========================
-  // EXPERIENCE
-  // =========================
-  requests.push(
-    fetch(
-      url +
-        '/rest/v1/experiences?select=company,job_title,location,start_date,end_date,is_current,period_label,description,responsibilities,tools,sort_order,is_published&is_published=eq.true&order=sort_order.asc',
-      { headers: headers }
-    )
-      .then(function (response) {
-        if (!response.ok) throw new Error('Experience request failed');
-        return response.json();
-      })
-      .then(function (rows) {
-        return {
-          key: 'portfolio_experience',
-          data: rows.map(function (row) {
-            return {
-              period:
-                row.period_label ||
-                (
-                  (row.start_date || '') +
-                  ' — ' +
-                  (row.is_current ? 'PRESENT' : (row.end_date || ''))
-                ),
-              tag: 'WORK EXPERIENCE',
-              tagAccent: row.job_title || '',
-              title: row.job_title || '',
-              company: row.company || '',
-              description: row.description || '',
-              responsibilities: row.responsibilities || [],
-              tools: row.tools || []
-            };
-          })
-        };
-      })
-  );
-
-  // =========================
-  // PROJECTS
-  // =========================
-  requests.push(
-    fetch(
-      url +
-        '/rest/v1/projects?select=title,category,short_description,tags,match_label,episode&is_published=eq.true&order=sort_order.asc',
-      { headers: headers }
-    )
-      .then(function (response) {
-        if (!response.ok) throw new Error('Projects request failed');
-        return response.json();
-      })
-      .then(function (rows) {
-        return {
-          key: 'portfolio_projects',
-          data: rows.map(function (row) {
-            return {
-              title: row.title || '',
-              category: row.category || '',
-              description: row.short_description || '',
-              tags: row.tags || [],
-              match: row.match_label || 'New',
-              episode: row.episode || ''
-            };
-          })
-        };
-      })
-  );
-
-  // =========================
-  // CERTIFICATES
-  // =========================
-  requests.push(
-    fetch(
-      url +
-        '/rest/v1/certificates?select=title,issuer,date_label&is_published=eq.true&order=sort_order.asc',
-      { headers: headers }
-    )
-      .then(function (response) {
-        if (!response.ok) throw new Error('Certificates request failed');
-        return response.json();
-      })
-      .then(function (rows) {
-        return {
-          key: 'portfolio_certificates',
-          data: rows.map(function (row) {
-            return {
-              title: row.title || '',
-              issuer: row.issuer || '',
-              date: row.date_label || ''
-            };
-          })
-        };
-      })
-  );
-
-  // =========================
-  // SAVE EVERYTHING FIRST
-  // THEN RELOAD ONCE
-  // =========================
-  Promise.all(requests)
-    .then(function (results) {
-      var changed = false;
-
-      results.forEach(function (result) {
-        if (save(result.key, result.data)) {
-          changed = true;
-        }
-      });
-
-      if (changed) {
-        window.location.reload();
-      }
-    })
-    .catch(function (error) {
-      console.warn('[portfolio] Backend sync failed:', error);
-    });
-})();
-
-(function () {
   function loadExperienceDetails() {
+    if (running) return;
+    running = true;
+
     var config = window.PORTFOLIO_CONFIG;
-    if (!config) return;
+    if (!config) { running = false; return; }
 
     var url = config.SUPABASE_URL.replace(/\/$/, '');
     var key = config.SUPABASE_ANON_KEY;
@@ -211,28 +27,27 @@
       })
       .then(function (rows) {
         var section = document.querySelector('#experience');
-        if (!section) return;
+        if (!section) { running = false; return; }
 
-        var headings = section.querySelectorAll('h3');
+        var headings = Array.from(section.querySelectorAll('h3'));
 
         rows.forEach(function (row) {
-          var heading = Array.from(headings).find(function (h) {
-            return h.textContent.trim() === row.job_title;
+          var wanted = (row.job_title || '').trim().toLowerCase();
+
+          var heading = headings.find(function (h) {
+            return h.textContent.trim().toLowerCase() === wanted;
           });
 
           if (!heading) return;
 
-          var card = heading.closest('div[class*="rounded-3xl"]');
+          var card = heading.closest('div[class*="rounded-3xl"]') || heading.closest('div');
           if (!card) return;
 
           var old = card.querySelector('[data-backend-experience-details]');
           if (old) old.remove();
 
           var details = document.createElement('div');
-          details.setAttribute(
-            'data-backend-experience-details',
-            'true'
-          );
+          details.setAttribute('data-backend-experience-details', 'true');
           details.style.marginTop = '24px';
 
           if (row.responsibilities && row.responsibilities.length) {
@@ -285,17 +100,22 @@
             card.appendChild(details);
           }
         });
+
+        running = false;
       })
       .catch(function (error) {
         console.warn('[portfolio] Experience details failed:', error);
+        running = false;
       });
   }
 
   function start() {
     loadExperienceDetails();
 
+    var timer = null;
     var observer = new MutationObserver(function () {
-      loadExperienceDetails();
+      clearTimeout(timer);
+      timer = setTimeout(loadExperienceDetails, 300);
     });
 
     observer.observe(document.body, {
