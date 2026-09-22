@@ -411,20 +411,45 @@
     loadExperienceDetails();
 
     var timer = null;
-    var observer = new MutationObserver(function () {
-      clearTimeout(timer);
-      timer = setTimeout(loadExperienceDetails, 300);
+
+    var observer = new MutationObserver(function (mutations) {
+        var relevant = false;
+
+        mutations.forEach(function (mutation) {
+            if (!mutation.addedNodes || !mutation.addedNodes.length) return;
+
+            for (var i = 0; i < mutation.addedNodes.length; i++) {
+                var node = mutation.addedNodes[i];
+
+                if (node.nodeType !== 1) continue;
+
+                if (
+                    node.matches &&
+                    node.matches('[data-backend-experience-details]')
+                ) {
+                    continue;
+                }
+
+                if (
+                    node.querySelector &&
+                    node.querySelector('[data-backend-experience-details]')
+                ) {
+                    continue;
+                }
+
+                relevant = true;
+                break;
+            }
+        });
+
+        if (!relevant) return;
+
+        clearTimeout(timer);
+        timer = setTimeout(loadExperienceDetails, 300);
     });
 
     observer.observe(document.body, {
-      childList: true,
-      subtree: true
+        childList: true,
+        subtree: true
     });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
-})();
+}
