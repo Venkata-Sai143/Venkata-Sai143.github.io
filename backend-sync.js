@@ -327,14 +327,19 @@
         var section = document.querySelector('#experience');
         if (!section) { running = false; return; }
 
-        var headings = Array.from(section.querySelectorAll('h3'));
-
+var headings = Array.from(
+    section.querySelectorAll('h1, h2, h3, h4, [role="heading"]')
+);
         rows.forEach(function (row) {
           var wanted = (row.job_title || '').trim().toLowerCase();
 
-          var heading = headings.find(function (h) {
-            return h.textContent.trim().toLowerCase() === wanted;
-          });
+        var heading = headings.find(function (h) {
+    return h.textContent
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase()
+        === wanted;
+});
 
           if (!heading) return;
 
