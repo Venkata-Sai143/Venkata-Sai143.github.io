@@ -19,6 +19,7 @@
       #experience .experience-chip { color: #666 !important; background: #fafafa !important; border-color: #ddd !important; }
       #experience .experience-description { color: #666 !important; }
       #projects .project-hidden { display: none !important; }
+      #projects .project-link { color: #ff2b2b !important; font-size: .7rem !important; font-weight: 700 !important; letter-spacing: .08em !important; text-transform: uppercase !important; text-decoration: underline !important; text-underline-offset: .25em !important; }
     </style>
   </head>
   <body>
@@ -36,10 +37,11 @@
             const cards = [...experience.querySelectorAll(':scope > div > div:last-child > div')];
             const entries = [
               { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', description: 'Supervised daily warehouse operations and manpower activities in a high-volume quick-commerce fulfillment center. Coordinated dispatch planning with transporters and prepared operational reports using Advanced Excel.' },
-              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', description: 'Generated and managed E-Way Bill documentation, operated WMS and Suvega Tracker for stock and dispatch tracking, and coordinated with transporters, store teams and warehouse staff.' }
+              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', description: 'Generated and managed E-Way Bill documentation, operated WMS and Suvega Tracker for stock and dispatch tracking, and coordinated with transporters, store teams and warehouse staff.' },
+              { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Data Analyst Course', description: 'Completed hands-on training in Excel, SQL, Power BI, Tableau, Python, and Statistics, building practical projects and dashboards to support data-driven decision making.' }
             ];
             cards.forEach((card, index) => {
-              if (index > 1) { card.remove(); return; }
+              if (index > 2) { card.remove(); return; }
               const entry = entries[index];
               card.classList.add('experience-card');
               const spans = card.querySelectorAll('span');
@@ -69,6 +71,17 @@
                 if (node.textContent.includes('Add a short description')) node.textContent = 'Analyzed a 20,000-record HR dataset after cleaning and validation. Built KPI cards, Pivot Charts, and slicers to explore salary, performance, attendance, and city insights.';
                 if (node.textContent === 'Data Analysis') node.textContent = 'Data Analytics';
                 if (node.textContent === 'New') node.textContent = '20K records';
+              });
+              const link = document.createElement('a');
+              link.className = 'project-link';
+              link.href = 'https://github.com/Venkata-Sai143/HR_Analytics_Dashboard';
+              link.target = '_blank';
+              link.rel = 'noopener noreferrer';
+              link.textContent = 'View Project ↗';
+              card.appendChild(link);
+              card.style.cursor = 'pointer';
+              card.addEventListener('click', (event) => {
+                if (!event.target.closest('a')) window.open(link.href, '_blank', 'noopener,noreferrer');
               });
             });
           }
