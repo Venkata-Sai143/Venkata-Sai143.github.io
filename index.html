@@ -7,8 +7,77 @@
     <title>Venkata Sai | Data Analyst Portfolio</title>
     <script type="module" crossorigin src="/assets/index-DwHLyi-a.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CeY7NN1k.css">
+    <style>
+      /* Scoped to the requested Experience reference treatment. */
+      #experience { background: #fff !important; color: #000 !important; }
+      #experience > div { max-width: min(1720px, calc(100% - 2rem)) !important; }
+      #experience h2 { color: #000 !important; font-size: clamp(3rem, 6vw, 5.8rem) !important; }
+      #experience .experience-card { background: #fff !important; border: 1px solid #e5e5e5 !important; box-shadow: 0 4px 12px rgba(0,0,0,.08) !important; }
+      #experience .experience-period { color: #9a9a9a !important; }
+      #experience .experience-tag, #experience .experience-company { color: #ff2b2b !important; }
+      #experience .experience-title { color: #000 !important; }
+      #experience .experience-chip { color: #666 !important; background: #fafafa !important; border-color: #ddd !important; }
+      #experience .experience-description { color: #666 !important; }
+      #projects .project-hidden { display: none !important; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (() => {
+        const updatePortfolio = () => {
+          const experience = document.querySelector('#experience');
+          if (experience && !experience.dataset.resumeUpdated) {
+            experience.dataset.resumeUpdated = 'true';
+            const label = experience.querySelector('span');
+            const heading = experience.querySelector('h2');
+            if (label) label.style.color = '#ff2b2b';
+            if (heading) heading.style.color = '#000';
+            const cards = [...experience.querySelectorAll(':scope > div > div:last-child > div')];
+            const entries = [
+              { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', description: 'Supervised daily warehouse operations and manpower activities in a high-volume quick-commerce fulfillment center. Coordinated dispatch planning with transporters and prepared operational reports using Advanced Excel.' },
+              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', description: 'Generated and managed E-Way Bill documentation, operated WMS and Suvega Tracker for stock and dispatch tracking, and coordinated with transporters, store teams and warehouse staff.' }
+            ];
+            cards.forEach((card, index) => {
+              if (index > 1) { card.remove(); return; }
+              const entry = entries[index];
+              card.classList.add('experience-card');
+              const spans = card.querySelectorAll('span');
+              const title = card.querySelector('h3');
+              const paragraphs = card.querySelectorAll('p');
+              if (spans[0]) { spans[0].textContent = entry.period; spans[0].classList.add('experience-period'); }
+              if (spans[1]) spans[1].classList.add('experience-tag');
+              if (spans[2]) { spans[2].textContent = entry.chip; spans[2].classList.add('experience-chip'); }
+              if (title) title.classList.add('experience-title');
+              if (paragraphs[0]) { paragraphs[0].textContent = entry.company; paragraphs[0].classList.add('experience-company'); }
+              if (paragraphs[1]) { paragraphs[1].textContent = entry.description; paragraphs[1].classList.add('experience-description'); }
+            });
+          }
+
+          const projects = document.querySelector('#projects');
+          if (projects && !projects.dataset.resumeUpdated) {
+            projects.dataset.resumeUpdated = 'true';
+            const cards = [...projects.querySelectorAll('h3')];
+            cards.forEach((title, index) => {
+              const card = title.closest('div[class*="rounded"]');
+              if (!card || card.dataset.projectUpdated) return;
+              card.dataset.projectUpdated = 'true';
+              if (index !== 0 && index !== 4) card.classList.add('project-hidden');
+              title.textContent = 'HR Analytics Dashboard';
+              const allText = card.querySelectorAll('p, span');
+              allText.forEach((node) => {
+                if (node.textContent.includes('Add a short description')) node.textContent = 'Analyzed a 20,000-record HR dataset after cleaning and validation. Built KPI cards, Pivot Charts, and slicers to explore salary, performance, attendance, and city insights.';
+                if (node.textContent === 'Data Analysis') node.textContent = 'Data Analytics';
+                if (node.textContent === 'New') node.textContent = '20K records';
+              });
+            });
+          }
+          return document.querySelector('#experience') && document.querySelector('#projects');
+        };
+        const observer = new MutationObserver(() => { if (updatePortfolio()) observer.disconnect(); });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        updatePortfolio();
+      })();
+    </script>
   </body>
 </html>
