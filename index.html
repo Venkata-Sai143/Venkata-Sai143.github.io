@@ -18,8 +18,13 @@
       #experience .experience-title { color: #000 !important; }
       #experience .experience-chip { color: #666 !important; background: #fafafa !important; border-color: #ddd !important; }
       #experience .experience-description { color: #666 !important; }
+      #experience .experience-bullets { color: #666 !important; display: grid !important; gap: .55rem !important; list-style: disc !important; margin: 1rem 0 0 1.25rem !important; max-width: 58rem !important; }
+      #experience .experience-bullets li::marker { color: #ff2b2b !important; }
       #projects .project-hidden { display: none !important; }
       #projects .project-link { color: #ff2b2b !important; font-size: .7rem !important; font-weight: 700 !important; letter-spacing: .08em !important; text-transform: uppercase !important; text-decoration: underline !important; text-underline-offset: .25em !important; }
+      #about > div > div:first-child, #about [data-aos="zoom-in"] img { display: none !important; }
+      #about [data-aos="zoom-in"], #skills span { cursor: pointer !important; transition: background-color .2s ease, color .2s ease, transform .2s ease !important; }
+      #about [data-aos="zoom-in"]:hover, #skills span:hover { background: #ff2b2b !important; color: #fff !important; transform: translateY(-2px) !important; }
     </style>
   </head>
   <body>
@@ -36,9 +41,9 @@
             if (heading) heading.style.color = '#000';
             const cards = [...experience.querySelectorAll(':scope > div > div:last-child > div')];
             const entries = [
-              { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', description: 'Supervised daily warehouse operations and manpower activities in a high-volume quick-commerce fulfillment center. Coordinated dispatch planning with transporters and prepared operational reports using Advanced Excel.' },
-              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', description: 'Generated and managed E-Way Bill documentation, operated WMS and Suvega Tracker for stock and dispatch tracking, and coordinated with transporters, store teams and warehouse staff.' },
-              { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Data Analyst Course', description: 'Completed hands-on training in Excel, SQL, Power BI, Tableau, Python, and Statistics, building practical projects and dashboards to support data-driven decision making.' }
+              { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', points: ['Supervised daily warehouse operations and manpower activities in a high-volume quick-commerce fulfillment center.', 'Coordinated dispatch planning with transporters.', 'Prepared operational reports using Advanced Excel.'] },
+              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', points: ['Generated and managed E-Way Bill documentation.', 'Operated WMS and Suvega Tracker for stock and dispatch tracking.', 'Coordinated with transporters, store teams, and warehouse staff.'] },
+              { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Data Analyst Course', points: ['Completed hands-on training in Excel, SQL, Power BI, Tableau, Python, and Statistics.', 'Built practical projects and dashboards to support data-driven decision making.'] }
             ];
             cards.forEach((card, index) => {
               if (index > 2) { card.remove(); return; }
@@ -52,7 +57,12 @@
               if (spans[2]) { spans[2].textContent = entry.chip; spans[2].classList.add('experience-chip'); }
               if (title) title.classList.add('experience-title');
               if (paragraphs[0]) { paragraphs[0].textContent = entry.company; paragraphs[0].classList.add('experience-company'); }
-              if (paragraphs[1]) { paragraphs[1].textContent = entry.description; paragraphs[1].classList.add('experience-description'); }
+              if (paragraphs[1]) {
+                const points = document.createElement('ul');
+                points.className = 'experience-bullets';
+                entry.points.forEach((point) => { const item = document.createElement('li'); item.textContent = point; points.appendChild(item); });
+                paragraphs[1].replaceWith(points);
+              }
             });
           }
 
