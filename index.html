@@ -26,6 +26,17 @@
       #about [data-aos="zoom-in"], #skills span { cursor: pointer !important; transition: background-color .2s ease, color .2s ease, transform .2s ease !important; }
       #about [data-aos="zoom-in"]:hover, #skills span:hover { background: #ff2b2b !important; color: #fff !important; transform: translateY(-2px) !important; }
       footer { display: none !important; }
+      #certificates { background: #111 !important; min-height: auto !important; padding: 6rem 1.5rem !important; }
+      #certificates .resume-certificates { max-width: 72rem; margin: 0 auto; color: #fff; }
+      #certificates .cert-heading { margin: 0 0 2.5rem; font-size: clamp(2.25rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: -.04em; }
+      #certificates .cert-heading span { color: #ff2b2b; }
+      #certificates .cert-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+      #certificates .cert-card { border: 1px solid rgba(255,255,255,.2); border-radius: 1.5rem; background: #1b1b1b; padding: 2rem; box-shadow: 0 1.5rem 3rem rgba(0,0,0,.28); }
+      #certificates .cert-card:hover { border-color: #ff2b2b; transform: translateY(-4px); transition: .2s ease; }
+      #certificates .cert-label { color: #ff2b2b; font-size: .7rem; font-weight: 800; letter-spacing: .18em; }
+      #certificates .cert-card h3 { margin: .75rem 0; font-size: 1.6rem; line-height: 1.1; }
+      #certificates .cert-card p { margin: .3rem 0; color: #b7b7b7; }
+      @media (max-width: 640px) { #certificates .cert-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -95,6 +106,29 @@
                 if (!event.target.closest('a')) window.open(link.href, '_blank', 'noopener,noreferrer');
               });
             });
+          }
+          const certificates = document.querySelector('#certificates');
+          if (certificates && !certificates.dataset.resumeUpdated) {
+            certificates.dataset.resumeUpdated = 'true';
+            certificates.innerHTML = `
+              <div class="resume-certificates">
+                <p class="cert-label">PROFESSIONAL CREDENTIALS</p>
+                <h2 class="cert-heading">Certi<span>ficates</span></h2>
+                <div class="cert-grid">
+                  <article class="cert-card">
+                    <p class="cert-label">VERIFIED CERTIFICATE</p>
+                    <h3>Excel Using AI Workshop</h3>
+                    <p>OfficeMaster</p>
+                    <p>Issued November 9, 2025</p>
+                  </article>
+                  <article class="cert-card">
+                    <p class="cert-label">VERIFIED CERTIFICATE</p>
+                    <h3>PowerBI Workshop</h3>
+                    <p>OfficeMaster</p>
+                    <p>Issued September 7, 2025</p>
+                  </article>
+                </div>
+              </div>`;
           }
           return document.querySelector('#experience') && document.querySelector('#projects');
         };
