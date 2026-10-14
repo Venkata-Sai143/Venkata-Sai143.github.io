@@ -22,7 +22,7 @@
       #experience .experience-bullets li::marker { color: #ff2b2b !important; }
       #projects .project-hidden { display: none !important; }
       #projects .project-link { color: #ff2b2b !important; font-size: .7rem !important; font-weight: 700 !important; letter-spacing: .08em !important; text-transform: uppercase !important; text-decoration: underline !important; text-underline-offset: .25em !important; }
-      #about > div > div:first-child, #about [data-aos="zoom-in"] img { display: none !important; }
+      #about > div > div:first-child { display: none !important; }
       #about [data-aos="zoom-in"], #skills span { cursor: pointer !important; transition: background-color .2s ease, color .2s ease, transform .2s ease !important; }
       #about [data-aos="zoom-in"]:hover, #skills span:hover { background: #ff2b2b !important; color: #fff !important; transform: translateY(-2px) !important; }
       footer { display: none !important; }
@@ -42,9 +42,9 @@
             if (heading) heading.style.color = '#000';
             const cards = [...experience.querySelectorAll(':scope > div > div:last-child > div')];
             const entries = [
-              { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', points: ['Supervised daily warehouse operations and manpower activities in a high-volume quick-commerce fulfillment center.', 'Coordinated dispatch planning with transporters.', 'Prepared operational reports using Advanced Excel.'] },
-              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', points: ['Generated and managed E-Way Bill documentation.', 'Operated WMS and Suvega Tracker for stock and dispatch tracking.', 'Coordinated with transporters, store teams, and warehouse staff.'] },
-              { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Data Analyst Course', points: ['Completed hands-on training in Excel, SQL, Power BI, Tableau, Python, and Statistics.', 'Built practical projects and dashboards to support data-driven decision making.'] }
+              { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', points: ['Led daily warehouse operations and supervised staff, ensuring smooth functioning of a high-volume quick-commerce fulfillment center.', 'Drove dispatch planning with transporters, maintaining consistent on-time delivery performance.', 'Analyzed daily operational data in Advanced Excel to prepare reports tracking productivity, stock accuracy and dispatch performance.', 'Maintained accurate warehouse records, improving inventory reliability and reducing reporting errors across daily operations.'] },
+              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', points: ['Generated accurate, GST-compliant E-Way Bills on a daily basis, ensuring smooth and uninterrupted movement of goods.', 'Tracked stock and dispatch data using WMS and Suvega Tracker to maintain stock accuracy.', 'Analyzed and prepared daily and monthly MIS reports in Advanced Excel to support management decisions on stock and dispatch.', 'Collaborated with transporters, store teams and warehouse staff to keep daily dispatch operations consistently on schedule.'] },
+              { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Guided program with trainer support', points: ['Completed modules in Advanced Excel and Power BI (DAX, data modeling, dashboard design); currently developing SQL skills, with Python, Tableau and Statistics modules upcoming.', 'Publishing practical projects on GitHub as each module is completed.'] }
             ];
             cards.forEach((card, index) => {
               if (index > 2) { card.remove(); return; }
