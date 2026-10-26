@@ -7,6 +7,8 @@
     <title>Venkata Sai | Data Analyst Portfolio</title>
     <script type="module" crossorigin src="/assets/index-DwHLyi-a.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CeY7NN1k.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/config.js" onerror="window.__noconfig=1"></script>
     <style>
       /* Scoped to the requested Experience reference treatment. */
       #experience { background: #fff !important; color: #000 !important; }
@@ -39,83 +41,203 @@
       #certificates a.cert-card { display: block; text-decoration: none; color: inherit; cursor: pointer; }
       #certificates .cert-link { color: #ff2b2b !important; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: .25em; margin-top: 1rem !important; }
       @media (max-width: 640px) { #certificates .cert-grid { grid-template-columns: 1fr; } }
+      /* Dynamic (Supabase-driven) skills section, styled to match the site's original skills look */
+      #skills.dynamic-skills { background: #fff; padding: 4rem 1.5rem 5rem; }
+      #skills .dyn-skills-wrap { max-width: 48rem; margin: 0 auto; }
+      #skills .dyn-skills-heading { font-size: 2rem; font-weight: 600; color: #000; margin: 0 0 .4rem; letter-spacing: -.02em; }
+      #skills .dyn-skills-sub { font-size: .9rem; color: rgba(0,0,0,.6); margin: 0 0 2.5rem; }
+      #skills .dyn-skill-card { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 1.5rem; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,.04); margin-bottom: 1.5rem; }
+      #skills .dyn-skill-card h3 { margin: 0 0 1.1rem; font-size: 1.1rem; font-weight: 700; color: #000; }
+      #skills .dyn-skill-chips { display: flex; flex-wrap: wrap; gap: .7rem; }
+      #skills .dyn-skill-chip { padding: .55rem 1.1rem; border-radius: 999px; background: rgba(0,0,0,.05); color: #000; font-weight: 500; font-size: .85rem; cursor: pointer; transition: background-color .2s ease, color .2s ease, transform .2s ease; }
+      #skills .dyn-skill-chip:hover { background: #ff2b2b; color: #fff; transform: translateY(-2px); }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script>
       (() => {
-        const updatePortfolio = () => {
-          const experience = document.querySelector('#experience');
-          if (experience && !experience.dataset.resumeUpdated) {
-            experience.dataset.resumeUpdated = 'true';
-            const label = experience.querySelector('span');
-            const heading = experience.querySelector('h2');
-            if (label) label.style.color = '#ff2b2b';
-            if (heading) heading.style.color = '#000';
-            const cards = [...experience.querySelectorAll(':scope > div > div:last-child > div')];
-            const entries = [
-              { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', points: ['Led daily warehouse operations and supervised staff, ensuring smooth functioning of a high-volume quick-commerce fulfillment center.', 'Drove dispatch planning with transporters, maintaining consistent on-time delivery performance.', 'Analyzed daily operational data in Advanced Excel to prepare reports tracking productivity, stock accuracy and dispatch performance.', 'Maintained accurate warehouse records, improving inventory reliability and reducing reporting errors across daily operations.'] },
-              { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', points: ['Generated accurate, GST-compliant E-Way Bills on a daily basis, ensuring smooth and uninterrupted movement of goods.', 'Tracked stock and dispatch data using WMS and Suvega Tracker to maintain stock accuracy.', 'Analyzed and prepared daily and monthly MIS reports in Advanced Excel to support management decisions on stock and dispatch.', 'Collaborated with transporters, store teams and warehouse staff to keep daily dispatch operations consistently on schedule.'] },
-              { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Guided program with trainer support', points: ['Completed modules in Advanced Excel and Power BI (DAX, data modeling, dashboard design); currently developing SQL skills, with Python, Tableau and Statistics modules upcoming.', 'Publishing practical projects on GitHub as each module is completed.'] }
-            ];
-            cards.forEach((card, index) => {
-              if (index > 2) { card.remove(); return; }
-              const entry = entries[index];
-              card.classList.add('experience-card');
-              const spans = card.querySelectorAll('span');
-              const title = card.querySelector('h3');
-              const paragraphs = card.querySelectorAll('p');
-              if (spans[0]) { spans[0].textContent = entry.period; spans[0].classList.add('experience-period'); }
-              if (spans[1]) spans[1].classList.add('experience-tag');
-              if (spans[2]) { spans[2].textContent = entry.chip; spans[2].classList.add('experience-chip'); }
-              if (title) title.classList.add('experience-title');
-              if (paragraphs[0]) { paragraphs[0].textContent = entry.company; paragraphs[0].classList.add('experience-company'); }
-              if (paragraphs[1]) {
-                const points = document.createElement('ul');
-                points.className = 'experience-bullets';
-                entry.points.forEach((point) => { const item = document.createElement('li'); item.textContent = point; points.appendChild(item); });
-                paragraphs[1].replaceWith(points);
-              }
-            });
-          }
+        // Filled in by /config.js (window.PORTFOLIO_CONFIG), the same file the
+        // admin panel uses — SUPABASE_URL and SUPABASE_ANON_KEY.
+        const CFG = window.PORTFOLIO_CONFIG || {};
+        const hasSupabase = !window.__noconfig && CFG.SUPABASE_URL && !CFG.SUPABASE_URL.includes('YOUR-PROJECT') &&
+          CFG.SUPABASE_ANON_KEY && typeof supabase !== 'undefined';
 
-          const projects = document.querySelector('#projects');
-          if (projects && !projects.dataset.resumeUpdated) {
-            projects.dataset.resumeUpdated = 'true';
-            const cards = [...projects.querySelectorAll('h3')];
-            // Desktop cards are indices 0-3 (Excel, Power BI, Python, MySQL);
-            // the same four repeat as indices 4-7 for the mobile carousel.
-            const visible = [0, 1, 4, 5];
-            const content = {
-              excel: {
-                title: 'HR Analytics Dashboard',
-                description: 'Analyzed a 20,000-record HR dataset after cleaning and validation. Built KPI cards, Pivot Charts, and slicers to explore salary, performance, attendance, and city insights.',
-                category: 'Data Analytics',
-                match: '20K records',
-                link: 'https://github.com/Venkata-Sai143/HR_Analytics_Dashboard'
-              },
-              powerbi: {
-                title: 'Corporate Sales Dashboard',
-                description: 'Built an interactive Power BI dashboard with DAX measures and a structured data model to visualize key business metrics and support data-driven decisions.',
-                category: 'Data Visualization',
-                match: '9K records',
-                link: 'https://github.com/Venkata-Sai143/Power-BI-Corporate-Sales-Dashboard'
-              }
-            };
-            cards.forEach((title, index) => {
-              const card = title.closest('div[class*="rounded"]');
-              if (!card || card.dataset.projectUpdated) return;
-              card.dataset.projectUpdated = 'true';
-              if (!visible.includes(index)) { card.classList.add('project-hidden'); return; }
-              const entry = (index === 0 || index === 4) ? content.excel : content.powerbi;
-              title.textContent = entry.title;
-              const allText = card.querySelectorAll('p, span');
-              allText.forEach((node) => {
-                if (node.textContent.includes('Add a short description')) node.textContent = entry.description;
-                if (node.textContent === 'Data Analysis' || node.textContent === 'Data Visualization') node.textContent = entry.category;
-                if (node.textContent === 'New') node.textContent = entry.match;
+        const withTimeout = (promise, ms) => Promise.race([
+          promise,
+          new Promise((resolve) => setTimeout(() => resolve(null), ms))
+        ]);
+
+        // Fetches editable content from Supabase (expertise, skills, experiences,
+        // projects, certificates). Each key resolves to an array from the database,
+        // or null (meaning: keep the section's built-in content, untouched).
+        const fetchDynamicContent = async () => {
+          const empty = { expertise: null, skills: null, experiences: null, projects: null, certificates: null };
+          if (!hasSupabase) return empty;
+          try {
+            const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+            const results = await withTimeout(Promise.all([
+              sb.from('expertise').select('*').eq('is_published', true).order('sort_order'),
+              sb.from('skills').select('*').eq('is_published', true).order('sort_order'),
+              sb.from('experiences').select('*').eq('is_published', true).order('sort_order'),
+              sb.from('projects').select('*').eq('is_published', true).order('sort_order'),
+              sb.from('certificates').select('*').eq('is_published', true).order('sort_order')
+            ]), 4000) || [null, null, null, null, null];
+            const [expertiseRes, skillsRes, experiencesRes, projectsRes, certsRes] = results;
+
+            // Group flat skill rows into { category, skills: [name, …] } for rendering.
+            const skillRows = skillsRes && !skillsRes.error && skillsRes.data?.length ? skillsRes.data : null;
+            let skillGroups = null;
+            if (skillRows) {
+              const order = [];
+              const byCategory = {};
+              skillRows.forEach((row) => {
+                if (!byCategory[row.category]) { byCategory[row.category] = []; order.push(row.category); }
+                byCategory[row.category].push(row.name);
               });
+              skillGroups = order.map((category) => ({ category, skills: byCategory[category] }));
+            }
+
+            return {
+              expertise: expertiseRes && !expertiseRes.error && expertiseRes.data?.length ? expertiseRes.data : null,
+              skills: skillGroups,
+              experiences: experiencesRes && !experiencesRes.error && experiencesRes.data?.length ? experiencesRes.data : null,
+              projects: projectsRes && !projectsRes.error && projectsRes.data?.length ? projectsRes.data : null,
+              certificates: certsRes && !certsRes.error && certsRes.data?.length ? certsRes.data : null
+            };
+          } catch (e) {
+            return empty;
+          }
+        };
+
+        const formatPeriod = (start, end, current) => {
+          const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '';
+          if (!start) return '';
+          return `${fmt(start)} — ${current ? 'Present' : (fmt(end) || 'Present')}`;
+        };
+
+        // ---- Experience (3 fixed card slots; always applies — this section's
+        // white-card redesign depends on these CSS classes being added) ----
+        const applyExperience = (dynamicExperiences) => {
+          const experience = document.querySelector('#experience');
+          if (!experience || experience.dataset.resumeUpdated) return;
+          experience.dataset.resumeUpdated = 'true';
+          const label = experience.querySelector('span');
+          const heading = experience.querySelector('h2');
+          if (label) label.style.color = '#ff2b2b';
+          if (heading) heading.style.color = '#000';
+          const cards = [...experience.querySelectorAll(':scope > div > div:last-child > div')];
+          const fallback = [
+            { period: 'DEC 2025 - APR 2026', chip: 'Operations & Dispatch', title: 'Supervisor', company: 'Mahindra Logistics Limited (Zepto)', points: ['Led daily warehouse operations and supervised staff, ensuring smooth functioning of a high-volume quick-commerce fulfillment center.', 'Drove dispatch planning with transporters, maintaining consistent on-time delivery performance.', 'Analyzed daily operational data in Advanced Excel to prepare reports tracking productivity, stock accuracy and dispatch performance.', 'Maintained accurate warehouse records, improving inventory reliability and reducing reporting errors across daily operations.'] },
+            { period: 'AUG 2023 - SEP 2025', chip: 'WMS & Logistics', title: 'System Operator', company: 'Ratnadeep Retail Pvt Ltd', points: ['Generated accurate, GST-compliant E-Way Bills on a daily basis, ensuring smooth and uninterrupted movement of goods.', 'Tracked stock and dispatch data using WMS and Suvega Tracker to maintain stock accuracy.', 'Analyzed and prepared daily and monthly MIS reports in Advanced Excel to support management decisions on stock and dispatch.', 'Collaborated with transporters, store teams and warehouse staff to keep daily dispatch operations consistently on schedule.'] },
+            { period: 'AUG 2026 - PRESENT', chip: 'Data Analytics', title: 'Data Analyst Training', company: 'Guided program with trainer support', points: ['Completed modules in Advanced Excel and Power BI (DAX, data modeling, dashboard design); currently developing SQL skills, with Python, Tableau and Statistics modules upcoming.', 'Publishing practical projects on GitHub as each module is completed.'] }
+          ];
+          const rows = (dynamicExperiences && dynamicExperiences.length)
+            ? dynamicExperiences.map((r) => ({
+                period: r.period_label || formatPeriod(r.start_date, r.end_date, r.is_current),
+                chip: (r.tools && r.tools[0]) || r.location || '',
+                title: r.job_title,
+                company: r.company,
+                points: (r.responsibilities && r.responsibilities.length) ? r.responsibilities : (r.description ? [r.description] : [])
+              }))
+            : fallback;
+          cards.forEach((card, index) => {
+            if (index > 2) { card.remove(); return; }
+            const entry = rows[index] || fallback[index];
+            if (!entry) return;
+            card.classList.add('experience-card');
+            const spans = card.querySelectorAll('span');
+            const title = card.querySelector('h3');
+            const paragraphs = card.querySelectorAll('p');
+            if (spans[0]) { spans[0].textContent = entry.period; spans[0].classList.add('experience-period'); }
+            if (spans[1]) spans[1].classList.add('experience-tag');
+            if (spans[2]) { spans[2].textContent = entry.chip; spans[2].classList.add('experience-chip'); }
+            if (title) { title.textContent = entry.title; title.classList.add('experience-title'); }
+            if (paragraphs[0]) { paragraphs[0].textContent = entry.company; paragraphs[0].classList.add('experience-company'); }
+            if (paragraphs[1]) {
+              const points = document.createElement('ul');
+              points.className = 'experience-bullets';
+              entry.points.forEach((point) => { const item = document.createElement('li'); item.textContent = point; points.appendChild(item); });
+              paragraphs[1].replaceWith(points);
+            }
+          });
+        };
+
+        // ---- Expertise ("My Expertise" dotted-path cards, exactly 4 fixed slots).
+        // Only touched when Supabase has data — this section was never
+        // customized before, so with no data it's left exactly as the site
+        // already renders it. ----
+        const applyExpertise = (dynamicExpertise) => {
+          const expertise = document.querySelector('#expertise');
+          if (!expertise || expertise.dataset.resumeUpdated || !dynamicExpertise || !dynamicExpertise.length) return;
+          expertise.dataset.resumeUpdated = 'true';
+          const titles = [...expertise.querySelectorAll('h3')];
+          titles.forEach((h3, index) => {
+            const row = dynamicExpertise[index];
+            if (!row) return;
+            const card = h3.closest('[data-aos]');
+            if (!card) return;
+            h3.textContent = row.title;
+            const numberEl = card.querySelector('span');
+            if (numberEl) numberEl.textContent = row.number;
+            const textEl = card.querySelector('p');
+            if (textEl) textEl.textContent = row.text;
+          });
+        };
+
+        // ---- Projects (2 editable slots out of the fixed desktop+mobile layout;
+        // always applies, same as before Supabase existed) ----
+        const applyProjects = (dynamicProjects) => {
+          const projects = document.querySelector('#projects');
+          if (!projects || projects.dataset.resumeUpdated) return;
+          projects.dataset.resumeUpdated = 'true';
+          const cards = [...projects.querySelectorAll('h3')];
+          // Desktop cards are indices 0-3 (Excel, Power BI, Python, MySQL);
+          // the same four repeat as indices 4-7 for the mobile carousel.
+          // Only two project slots exist in the underlying layout, so if Supabase
+          // has more than two projects, the first two (by sort_order) are used here.
+          const visible = [0, 1, 4, 5];
+          const fallback = [
+            {
+              title: 'HR Analytics Dashboard',
+              description: 'Analyzed a 20,000-record HR dataset after cleaning and validation. Built KPI cards, Pivot Charts, and slicers to explore salary, performance, attendance, and city insights.',
+              category: 'Data Analytics',
+              match_label: '20K records',
+              link: 'https://github.com/Venkata-Sai143/HR_Analytics_Dashboard'
+            },
+            {
+              title: 'Corporate Sales Dashboard',
+              description: 'Built an interactive Power BI dashboard with DAX measures and a structured data model to visualize key business metrics and support data-driven decisions.',
+              category: 'Data Visualization',
+              match_label: '9K records',
+              link: 'https://github.com/Venkata-Sai143/Power-BI-Corporate-Sales-Dashboard'
+            }
+          ];
+          const normalize = (r) => ({
+            title: r.title,
+            description: r.short_description,
+            category: r.category,
+            match_label: r.match_label,
+            link: r.github_url || r.live_url || null
+          });
+          const dyn = (dynamicProjects || []).map(normalize);
+          const slots = [dyn[0] || fallback[0], dyn[1] || fallback[1]];
+          cards.forEach((title, index) => {
+            const card = title.closest('div[class*="rounded"]');
+            if (!card || card.dataset.projectUpdated) return;
+            card.dataset.projectUpdated = 'true';
+            if (!visible.includes(index)) { card.classList.add('project-hidden'); return; }
+            const entry = (index === 0 || index === 4) ? slots[0] : slots[1];
+            title.textContent = entry.title;
+            // Stable, structural selectors (not text-matching) so this works
+            // however many times this card's text has already changed.
+            const descEl = card.querySelector('div.space-y-2 p');
+            if (descEl && entry.description) descEl.textContent = entry.description;
+            const categoryEl = card.querySelector('div.space-y-2 > div');
+            if (categoryEl && entry.category) categoryEl.textContent = entry.category;
+            const spans = card.querySelectorAll('span');
+            if (spans[1] && entry.match_label) spans[1].textContent = entry.match_label; // spans[0] is the P01/P02 episode tag, left as-is
+            if (entry.link) {
               const link = document.createElement('a');
               link.className = 'project-link';
               link.href = entry.link;
@@ -127,38 +249,116 @@
               card.addEventListener('click', (event) => {
                 if (!event.target.closest('a')) window.open(link.href, '_blank', 'noopener,noreferrer');
               });
-            });
-          }
-          const certificates = document.querySelector('#certificates');
-          if (certificates && !certificates.dataset.resumeUpdated) {
-            certificates.dataset.resumeUpdated = 'true';
-            certificates.innerHTML = `
-              <div class="resume-certificates">
-                <p class="cert-label">PROFESSIONAL CREDENTIALS</p>
-                <h2 class="cert-heading">Certi<span>ficates</span></h2>
-                <div class="cert-grid">
-                  <a class="cert-card" href="https://lnkd.in/p/dj6cF9WV" target="_blank" rel="noopener noreferrer">
-                    <p class="cert-label">VERIFIED CERTIFICATE</p>
-                    <h3>Excel Using AI Workshop</h3>
-                    <p>OfficeMaster</p>
-                    <p>Issued November 9, 2025</p>
-                    <p class="cert-link">View Certificate ↗</p>
-                  </a>
-                  <a class="cert-card" href="https://lnkd.in/p/ddxc7jqn" target="_blank" rel="noopener noreferrer">
-                    <p class="cert-label">VERIFIED CERTIFICATE</p>
-                    <h3>PowerBI Workshop</h3>
-                    <p>OfficeMaster</p>
-                    <p>Issued September 7, 2025</p>
-                    <p class="cert-link">View Certificate ↗</p>
-                  </a>
-                </div>
-              </div>`;
-          }
-          return document.querySelector('#experience') && document.querySelector('#projects');
+            }
+          });
         };
-        const observer = new MutationObserver(() => { if (updatePortfolio()) observer.disconnect(); });
+
+        // ---- Certificates (fully dynamic — any number of cards; always applies,
+        // same as before Supabase existed) ----
+        const applyCertificates = (dynamicCertificates) => {
+          const certificates = document.querySelector('#certificates');
+          if (!certificates || certificates.dataset.resumeUpdated) return;
+          certificates.dataset.resumeUpdated = 'true';
+          const fallback = [
+            { title: 'Excel Using AI Workshop', issuer: 'OfficeMaster', issued_date: 'Issued November 9, 2025', link: 'https://lnkd.in/p/dj6cF9WV' },
+            { title: 'PowerBI Workshop', issuer: 'OfficeMaster', issued_date: 'Issued September 7, 2025', link: 'https://lnkd.in/p/ddxc7jqn' }
+          ];
+          const normalize = (r) => ({
+            title: r.title,
+            issuer: r.issuer,
+            issued_date: r.date_label || (r.issue_date ? new Date(r.issue_date).getFullYear().toString() : ''),
+            link: r.credential_url || null
+          });
+          const items = (dynamicCertificates && dynamicCertificates.length) ? dynamicCertificates.map(normalize) : fallback;
+          const cardsHtml = items.map((c) => `
+            <a class="cert-card" href="${c.link || '#'}" target="_blank" rel="noopener noreferrer">
+              <p class="cert-label">VERIFIED CERTIFICATE</p>
+              <h3></h3>
+              <p></p>
+              <p></p>
+              <p class="cert-link">View Certificate ↗</p>
+            </a>`).join('');
+          certificates.innerHTML = `
+            <div class="resume-certificates">
+              <p class="cert-label">PROFESSIONAL CREDENTIALS</p>
+              <h2 class="cert-heading">Certi<span>ficates</span></h2>
+              <div class="cert-grid">${cardsHtml}</div>
+            </div>`;
+          // Set text via textContent (not string interpolation) so titles/issuers can't break the markup.
+          const cardEls = [...certificates.querySelectorAll('.cert-card')];
+          cardEls.forEach((el, i) => {
+            const item = items[i];
+            el.querySelector('h3').textContent = item.title;
+            const paras = el.querySelectorAll('p');
+            paras[1].textContent = item.issuer;
+            paras[2].textContent = item.issued_date;
+          });
+        };
+
+        // ---- Skills (replaces the built-in section only if Supabase has data; otherwise untouched) ----
+        const applySkills = (dynamicSkillGroups) => {
+          const skills = document.querySelector('#skills');
+          if (!skills || skills.dataset.resumeUpdated || !dynamicSkillGroups || !dynamicSkillGroups.length) return;
+          skills.dataset.resumeUpdated = 'true';
+          skills.classList.add('dynamic-skills');
+          skills.innerHTML = `
+            <div class="dyn-skills-wrap">
+              <h2 class="dyn-skills-heading">Technologies I Work With</h2>
+              <p class="dyn-skills-sub">Practical, job-ready skills across spreadsheets, databases, visualization, and analysis.</p>
+              <div class="dyn-skill-cards"></div>
+            </div>`;
+          const container = skills.querySelector('.dyn-skill-cards');
+          dynamicSkillGroups.forEach((cat) => {
+            const card = document.createElement('div');
+            card.className = 'dyn-skill-card';
+            const h3 = document.createElement('h3');
+            h3.textContent = cat.category;
+            const chips = document.createElement('div');
+            chips.className = 'dyn-skill-chips';
+            (cat.skills || []).forEach((skill) => {
+              const chip = document.createElement('span');
+              chip.className = 'dyn-skill-chip';
+              chip.textContent = skill;
+              chips.appendChild(chip);
+            });
+            card.appendChild(h3);
+            card.appendChild(chips);
+            container.appendChild(card);
+          });
+        };
+
+        // dynamicData stays null until the Supabase fetch settles. Every section
+        // below is only ever rendered once (each guarded by its own resumeUpdated
+        // flag), and that render is deliberately held back until dynamicData is
+        // available, so database content (if any) is what actually shows — not a
+        // fallback that then can't be replaced. When Supabase isn't configured,
+        // fetchDynamicContent() resolves almost immediately with nulls, so this
+        // costs no real time in that case.
+        let dynamicData = null;
+
+        const applyAll = () => {
+          if (!dynamicData) return false;
+          applyExperience(dynamicData.experiences);
+          applyExpertise(dynamicData.expertise);
+          applyProjects(dynamicData.projects);
+          applyCertificates(dynamicData.certificates);
+          applySkills(dynamicData.skills);
+          return Boolean(
+            document.querySelector('#experience') &&
+            document.querySelector('#expertise') &&
+            document.querySelector('#projects') &&
+            document.querySelector('#certificates') &&
+            document.querySelector('#skills')
+          );
+        };
+
+        const observer = new MutationObserver(() => { if (applyAll()) observer.disconnect(); });
         observer.observe(document.documentElement, { childList: true, subtree: true });
-        updatePortfolio();
+
+        fetchDynamicContent().then((data) => {
+          dynamicData = data;
+          if (applyAll()) observer.disconnect();
+        });
       })();
     </script>
   </body>
