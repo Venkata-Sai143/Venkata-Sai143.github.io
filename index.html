@@ -36,6 +36,8 @@
       #certificates .cert-label { color: #ff2b2b; font-size: .7rem; font-weight: 800; letter-spacing: .18em; }
       #certificates .cert-card h3 { margin: .75rem 0; font-size: 1.6rem; line-height: 1.1; }
       #certificates .cert-card p { margin: .3rem 0; color: #b7b7b7; }
+      #certificates a.cert-card { display: block; text-decoration: none; color: inherit; cursor: pointer; }
+      #certificates .cert-link { color: #ff2b2b !important; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: .25em; margin-top: 1rem !important; }
       @media (max-width: 640px) { #certificates .cert-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
@@ -82,21 +84,41 @@
           if (projects && !projects.dataset.resumeUpdated) {
             projects.dataset.resumeUpdated = 'true';
             const cards = [...projects.querySelectorAll('h3')];
+            // Desktop cards are indices 0-3 (Excel/SQL, Power BI, Python, SQL/MySQL);
+            // the same four repeat as indices 4-7 for the mobile carousel.
+            const visible = [0, 1, 4, 5];
+            const content = {
+              excel: {
+                title: 'HR Analytics Dashboard',
+                description: 'Analyzed a 20,000-record HR dataset after cleaning and validation. Built KPI cards, Pivot Charts, and slicers to explore salary, performance, attendance, and city insights.',
+                category: 'Data Analytics',
+                match: '20K records',
+                link: 'https://github.com/Venkata-Sai143/HR_Analytics_Dashboard'
+              },
+              powerbi: {
+                title: 'Power BI Dashboard',
+                description: 'Built an interactive Power BI dashboard with DAX measures and a structured data model to visualize key business metrics and support data-driven decisions.',
+                category: 'Data Visualization',
+                match: 'Power BI',
+                link: 'https://github.com/Venkata-Sai143?tab=repositories'
+              }
+            };
             cards.forEach((title, index) => {
               const card = title.closest('div[class*="rounded"]');
               if (!card || card.dataset.projectUpdated) return;
               card.dataset.projectUpdated = 'true';
-              if (index !== 0 && index !== 4) card.classList.add('project-hidden');
-              title.textContent = 'HR Analytics Dashboard';
+              if (!visible.includes(index)) { card.classList.add('project-hidden'); return; }
+              const entry = (index === 0 || index === 4) ? content.excel : content.powerbi;
+              title.textContent = entry.title;
               const allText = card.querySelectorAll('p, span');
               allText.forEach((node) => {
-                if (node.textContent.includes('Add a short description')) node.textContent = 'Analyzed a 20,000-record HR dataset after cleaning and validation. Built KPI cards, Pivot Charts, and slicers to explore salary, performance, attendance, and city insights.';
-                if (node.textContent === 'Data Analysis') node.textContent = 'Data Analytics';
-                if (node.textContent === 'New') node.textContent = '20K records';
+                if (node.textContent.includes('Add a short description')) node.textContent = entry.description;
+                if (node.textContent === 'Data Analysis' || node.textContent === 'Data Visualization') node.textContent = entry.category;
+                if (node.textContent === 'New') node.textContent = entry.match;
               });
               const link = document.createElement('a');
               link.className = 'project-link';
-              link.href = 'https://github.com/Venkata-Sai143/HR_Analytics_Dashboard';
+              link.href = entry.link;
               link.target = '_blank';
               link.rel = 'noopener noreferrer';
               link.textContent = 'View Project ↗';
@@ -115,18 +137,20 @@
                 <p class="cert-label">PROFESSIONAL CREDENTIALS</p>
                 <h2 class="cert-heading">Certi<span>ficates</span></h2>
                 <div class="cert-grid">
-                  <article class="cert-card">
+                  <a class="cert-card" href="https://lnkd.in/p/dj6cF9WV" target="_blank" rel="noopener noreferrer">
                     <p class="cert-label">VERIFIED CERTIFICATE</p>
                     <h3>Excel Using AI Workshop</h3>
                     <p>OfficeMaster</p>
                     <p>Issued November 9, 2025</p>
-                  </article>
-                  <article class="cert-card">
+                    <p class="cert-link">View Certificate ↗</p>
+                  </a>
+                  <a class="cert-card" href="https://lnkd.in/p/ddxc7jqn" target="_blank" rel="noopener noreferrer">
                     <p class="cert-label">VERIFIED CERTIFICATE</p>
                     <h3>PowerBI Workshop</h3>
                     <p>OfficeMaster</p>
                     <p>Issued September 7, 2025</p>
-                  </article>
+                    <p class="cert-link">View Certificate ↗</p>
+                  </a>
                 </div>
               </div>`;
           }
