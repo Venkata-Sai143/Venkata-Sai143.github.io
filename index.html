@@ -84,7 +84,7 @@
           if (projects && !projects.dataset.resumeUpdated) {
             projects.dataset.resumeUpdated = 'true';
             const cards = [...projects.querySelectorAll('h3')];
-            // Desktop cards are indices 0-3 (Excel, Power BI, Python, SQL/MySQL);
+            // Desktop cards are indices 0-3 (Excel, Power BI, Python, MySQL);
             // the same four repeat as indices 4-7 for the mobile carousel.
             const visible = [0, 1, 4, 5];
             const content = {
