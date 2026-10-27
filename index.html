@@ -29,10 +29,6 @@
       #projects .dyn-project-grid { position: relative; z-index: 10; width: 100%; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
       #projects .dyn-project-card { min-height: 220px; }
       #projects .dyn-project-card a.project-link { margin-top: 1rem; display: inline-block; }
-      /* Plain, unlimited expertise list (replaces the fixed 4-slot dotted-path
-         layout once Supabase has expertise data). */
-      #expertise .expertise-card-plain { margin: 0 auto 1.75rem; }
-      #expertise .expertise-card-plain:last-child { margin-bottom: 0; }
       #about > div > div:first-child { display: none !important; }
       #about [data-aos="zoom-in"], #skills span { cursor: pointer !important; transition: background-color .2s ease, color .2s ease, transform .2s ease !important; }
       #about [data-aos="zoom-in"]:hover, #skills span:hover { background: #ff2b2b !important; color: #fff !important; transform: translateY(-2px) !important; }
@@ -184,10 +180,14 @@
         // ---- Expertise ("My Expertise" cards). Only touched when Supabase has
         // data — this section was never customized before, so with no data it's
         // left exactly as the site already renders it (4 dotted-path cards).
-        // With data, the dotted-path layout (built for exactly 4 fixed positions)
-        // is replaced with a plain stacked list, cloned from a real card so the
-        // card styling (shape, shadow, colors) stays identical — this supports
-        // any number of entries. ----
+        // With data, the SAME dotted-path card look/rotation/zig-zag is kept —
+        // the first 4 cards reuse the site's original 4 hand-tuned positions,
+        // and any extra cards repeat that same zig-zag pattern further down
+        // the page (the decorative dotted line itself only covers the
+        // original span — extra cards sit below it in the same card style).
+        // An admin can also override any card's exact spot by setting its own
+        // position_class/aos_type/aos_delay in Supabase (the columns the
+        // original schema reserved for this). ----
         const stripPositionClasses = (className) => className.split(/\s+/).filter((cls) => {
           return cls
             && !/^(md:)?absolute$/.test(cls)
@@ -196,14 +196,18 @@
             && cls !== 'z-10';
         }).join(' ');
 
+        const EXPERTISE_POSITIONS = [
+          { top: 10,   rest: 'md:right-[5%] lg:right-[10%] rotate-2 md:rotate-6',   aosType: 'fade-left',  aosDelay: '100' },
+          { top: 450,  rest: 'md:left-[5%] lg:left-[10%] -rotate-2 md:-rotate-6',  aosType: 'fade-right', aosDelay: '200' },
+          { top: 700,  rest: 'md:right-[5%] lg:right-[15%] rotate-1 md:rotate-3',  aosType: 'fade-left',  aosDelay: '300' },
+          { top: 1050, rest: 'md:left-[15%] lg:left-[25%] -rotate-1 md:-rotate-3', aosType: 'fade-right', aosDelay: '400' }
+        ];
+        const EXPERTISE_CYCLE_HEIGHT = 1400; // vertical space one full zig-zag group needs
+
         const applyExpertise = (dynamicExpertise) => {
           const expertise = document.querySelector('#expertise');
           if (!expertise || expertise.dataset.resumeUpdated || !dynamicExpertise || !dynamicExpertise.length) return;
           expertise.dataset.resumeUpdated = 'true';
-
-          // Hide the dotted-path decoration — it's tied to exactly 4 fixed card
-          // positions and would look disconnected from a plain list.
-          [...expertise.querySelectorAll('svg')].forEach((svg) => { svg.style.display = 'none'; });
 
           const cardTitles = [...expertise.querySelectorAll('h3')];
           if (!cardTitles.length) return;
@@ -212,21 +216,44 @@
           const container = originalCard.parentElement;
           if (!container) return;
 
-          // The container (and its ancestor) reserve a huge fixed height for the
-          // old path layout — release it now that cards flow normally.
-          let node = container;
-          while (node && node !== expertise) {
-            if (node.className && node.className.includes('md:h-[1350px]')) node.style.height = 'auto';
-            node = node.parentElement;
-          }
-
+          // Base styling (shape, shadow, colors) with position/rotation classes
+          // stripped out, so each card below can get its own position re-applied.
+          const baseClassName = stripPositionClasses(originalCard.className) + ' z-10';
           const template = originalCard.cloneNode(true);
-          template.className = stripPositionClasses(template.className) + ' expertise-card-plain';
-          template.removeAttribute('data-aos');
 
+          // Tailwind's CSS is a prebuilt stylesheet — only class names that
+          // literally appeared in the original source got compiled. The 4
+          // original top-[Npx] classes work; any NEW pixel value we need for
+          // card 5+ has no matching rule and silently does nothing. So "top"
+          // is set through a small injected <style> block instead of a class.
+          let cssRules = '';
           container.innerHTML = '';
-          dynamicExpertise.forEach((row) => {
+          let maxTop = 1050;
+          dynamicExpertise.forEach((row, index) => {
             const card = template.cloneNode(true);
+            let rest; let aosType; let aosDelay; let topPx;
+            if (row.position_class) {
+              rest = row.position_class.replace(/\s*\S*top-\[[^\]]+\]\S*/g, '').trim();
+              aosType = row.aos_type || 'fade-up';
+              aosDelay = row.aos_delay || String(100 + index * 100);
+              const m = /top-\[(\d+)px\]/.exec(row.position_class);
+              topPx = m ? parseInt(m[1], 10) : index * 350;
+            } else {
+              const base = EXPERTISE_POSITIONS[index % 4];
+              const cycle = Math.floor(index / 4);
+              topPx = base.top + cycle * EXPERTISE_CYCLE_HEIGHT;
+              rest = `md:absolute ${base.rest}`;
+              aosType = base.aosType;
+              aosDelay = base.aosDelay;
+            }
+            if (topPx > maxTop) maxTop = topPx;
+            const posId = `expertise-pos-${index}`;
+            cssRules += `@media (min-width:768px){ #expertise .${posId}{ top:${topPx}px !important; } }`;
+            card.className = baseClassName + ' ' + rest + ' ' + posId;
+            card.classList.add('aos-init', 'aos-animate'); // show immediately, no scroll-trigger dependency
+            card.setAttribute('data-aos', aosType);
+            card.setAttribute('data-aos-delay', aosDelay);
+
             const h3 = card.querySelector('h3');
             if (h3) h3.textContent = row.title;
             const numberEl = card.querySelector('span');
@@ -235,6 +262,22 @@
             if (textEl) textEl.textContent = row.text;
             container.appendChild(card);
           });
+          if (cssRules) {
+            const styleTag = document.createElement('style');
+            styleTag.textContent = cssRules;
+            document.head.appendChild(styleTag);
+          }
+
+          // Grow the section (desktop only — mobile already flows naturally)
+          // so extra cards below the original 4 have room and nothing overlaps.
+          if (window.matchMedia('(min-width: 768px)').matches) {
+            const totalHeight = maxTop + 420;
+            let node = container;
+            while (node && node !== expertise) {
+              if (node.className && node.className.includes('md:h-[')) node.style.height = totalHeight + 'px';
+              node = node.parentElement;
+            }
+          }
         };
 
         // ---- Projects (2 editable slots out of the fixed desktop+mobile layout;
