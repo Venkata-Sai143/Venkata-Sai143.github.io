@@ -196,17 +196,11 @@
             && cls !== 'z-10';
         }).join(' ');
 
-        // Right-side cards use a percentage (scales fine — they never get near
-        // the left-aligned intro text column). Left-side cards instead use a
-        // fixed pixel offset: the intro text column is a fixed 450px wide, so
-        // a percentage offset (what the original design used) shrinks below
-        // that at narrower/in-between screen widths and the card ends up
-        // overlapping the text — a fixed px clears it at every width.
         const EXPERTISE_POSITIONS = [
-          { top: 10,   side: 'right', pct: 10,           rotate: 'rotate-2 md:rotate-6',    aosType: 'fade-left',  aosDelay: '100' },
-          { top: 450,  side: 'left',  px: 480,           rotate: '-rotate-2 md:-rotate-6',  aosType: 'fade-right', aosDelay: '200' },
-          { top: 700,  side: 'right', pct: 15,           rotate: 'rotate-1 md:rotate-3',    aosType: 'fade-left',  aosDelay: '300' },
-          { top: 1050, side: 'left',  px: 480,           rotate: '-rotate-1 md:-rotate-3',  aosType: 'fade-right', aosDelay: '400' }
+          { top: 10,   rest: 'md:right-[5%] lg:right-[10%] rotate-2 md:rotate-6',   aosType: 'fade-left',  aosDelay: '100' },
+          { top: 450,  rest: 'md:left-[5%] lg:left-[10%] -rotate-2 md:-rotate-6',  aosType: 'fade-right', aosDelay: '200' },
+          { top: 700,  rest: 'md:right-[5%] lg:right-[15%] rotate-1 md:rotate-3',  aosType: 'fade-left',  aosDelay: '300' },
+          { top: 1050, rest: 'md:left-[15%] lg:left-[25%] -rotate-1 md:-rotate-3', aosType: 'fade-right', aosDelay: '400' }
         ];
         const EXPERTISE_CYCLE_HEIGHT = 1400; // vertical space one full zig-zag group needs
 
@@ -229,43 +223,33 @@
 
           // Tailwind's CSS is a prebuilt stylesheet — only class names that
           // literally appeared in the original source got compiled. The 4
-          // original top-[Npx]/left-[%]/right-[%] classes work; any NEW value
-          // we need for card 5+ (or the narrower md-only 5% offset, which can
-          // overlap the intro text at in-between widths) has no matching rule
-          // or isn't safe to reuse — so position is set through a small
-          // injected <style> block instead of relying on Tailwind classes.
+          // original top-[Npx] classes work; any NEW pixel value we need for
+          // card 5+ has no matching rule and silently does nothing. So "top"
+          // is set through a small injected <style> block instead of a class.
           let cssRules = '';
           container.innerHTML = '';
           let maxTop = 1050;
           dynamicExpertise.forEach((row, index) => {
             const card = template.cloneNode(true);
-            let rotate; let aosType; let aosDelay; let topPx; let side; let pct; let px;
+            let rest; let aosType; let aosDelay; let topPx;
             if (row.position_class) {
-              rotate = (row.position_class.match(/-?rotate-\S+/g) || []).join(' ');
+              rest = row.position_class.replace(/\s*\S*top-\[[^\]]+\]\S*/g, '').trim();
               aosType = row.aos_type || 'fade-up';
               aosDelay = row.aos_delay || String(100 + index * 100);
-              const topMatch = /top-\[(\d+)px\]/.exec(row.position_class);
-              topPx = topMatch ? parseInt(topMatch[1], 10) : index * 350;
-              const sideMatch = /(left|right)-\[(\d+)%\]/.exec(row.position_class);
-              side = sideMatch ? sideMatch[1] : (index % 2 === 0 ? 'right' : 'left');
-              pct = sideMatch ? parseInt(sideMatch[2], 10) : 15;
-              px = side === 'left' ? 480 : undefined; // same overlap-safe clearance as the defaults
+              const m = /top-\[(\d+)px\]/.exec(row.position_class);
+              topPx = m ? parseInt(m[1], 10) : index * 350;
             } else {
               const base = EXPERTISE_POSITIONS[index % 4];
               const cycle = Math.floor(index / 4);
               topPx = base.top + cycle * EXPERTISE_CYCLE_HEIGHT;
-              rotate = base.rotate;
-              side = base.side;
-              pct = base.pct;
-              px = base.px;
+              rest = `md:absolute ${base.rest}`;
               aosType = base.aosType;
               aosDelay = base.aosDelay;
             }
             if (topPx > maxTop) maxTop = topPx;
             const posId = `expertise-pos-${index}`;
-            const sideValue = px != null ? `${px}px` : `${pct}%`;
-            cssRules += `@media (min-width:768px){ #expertise .${posId}{ top:${topPx}px !important; ${side}:${sideValue} !important; ${side === 'left' ? 'right' : 'left'}:auto !important; } }`;
-            card.className = baseClassName + ' md:absolute ' + rotate + ' ' + posId;
+            cssRules += `@media (min-width:768px){ #expertise .${posId}{ top:${topPx}px !important; } }`;
+            card.className = baseClassName + ' ' + rest + ' ' + posId;
             card.classList.add('aos-init', 'aos-animate'); // show immediately, no scroll-trigger dependency
             card.setAttribute('data-aos', aosType);
             card.setAttribute('data-aos-delay', aosDelay);
