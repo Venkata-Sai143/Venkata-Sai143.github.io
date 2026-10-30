@@ -322,6 +322,7 @@ const SCHEMA={
     F('is_published','Show on the website','bool',{full:true})
   ]},
 
+  leads:{label:'Resume requests',icon:'📥'},
   media:{label:'Media',icon:'🖼️'},
   settings:{label:'Settings',icon:'⚙️'}
 };
@@ -377,7 +378,7 @@ async function loadLib(){ const {data}=await sb.from('media').select('*').order(
 function renderSide(){
   const item=k=>{ const s=SCHEMA[k], n=LISTS.includes(k)?(CACHE[k]||[]).length:(k==='media'?LIB.length:'');
     return `<button data-k="${k}" class="${k===CUR?'on':''}">${s.icon} <span>${esc(s.label)}</span>${n!==''?`<span class="n">${n}</span>`:''}</button>`; };
-  $('#side').innerHTML=item('dashboard')+'<hr>'+['profile','expertise','skills','experiences','projects','certificates'].map(item).join('')+'<hr>'+item('media')+item('settings');
+  $('#side').innerHTML=item('dashboard')+'<hr>'+['profile','expertise','skills','experiences','projects','certificates'].map(item).join('')+'<hr>'+item('leads')+item('media')+item('settings');
 }
 $('#side').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(!b)return;
   CUR=b.dataset.k; renderSide(); renderPane(); window.scrollTo(0,0); });
@@ -386,6 +387,7 @@ $('#side').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); i
 function renderPane(){
   const p=$('#pane');
   if(CUR==='dashboard') return renderDash(p);
+  if(CUR==='leads') return renderLeads(p);
   if(CUR==='media') return renderMedia(p);
   if(CUR==='settings') return renderSettings(p);
   if(SCHEMA[CUR].singleton) return renderSingle(p);
@@ -776,6 +778,34 @@ async function askDeleteMedia(m){
     LIB=LIB.filter(x=>x.id!==m.id);
     closeMo('ask'); renderSide(); renderMedia($('#pane')); toast('File deleted');
   };
+}
+
+/* ---------------- resume requests (people who downloaded the resume) ---------------- */
+async function renderLeads(p){
+  p.innerHTML='<h2>Resume requests</h2><div class="sub">Loading…</div>';
+  const {data,error}=await sb.from('resume_requests').select('*').order('created_at',{ascending:false});
+  if(error){ p.innerHTML='<h2>Resume requests</h2><div class="note">Could not load: '+esc(error.message)+'<br>Run <b>06_resume_requests.sql</b> in Supabase SQL Editor first.</div>'; return; }
+  const rows=data||[];
+  p.innerHTML=`<h2>Resume requests</h2><div class="sub">${rows.length} ${rows.length===1?'person':'people'} entered their details to open your resume. Newest first.</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px"><button class="btn" id="lcsv" ${rows.length?'':'disabled'}>Download CSV</button><button class="btn" id="lref">Refresh</button></div>
+    <div class="rows">${rows.map(r=>`<div class="row" data-id="${esc(r.id)}"><div class="meta"><b>${esc(r.full_name)}</b>
+      <small>📱 ${esc(r.mobile)} · ✉️ ${esc(r.email)} · ${new Date(r.created_at).toLocaleString()}</small>${(r.company||r.website)?`<small>🏢 ${esc(r.company||'')} ${r.website?`· 🔗 <a href="${esc(r.website)}" target="_blank" rel="noopener" style="color:inherit">${esc(r.website)}</a>`:''}</small>`:''}</div>
+      <a class="btn sm" href="https://wa.me/${esc(String(r.mobile).replace(/\D/g,''))}" target="_blank" rel="noopener">WhatsApp</a>
+      <button class="btn sm danger ldel">Delete</button></div>`).join('')||'<div class="empty">Nobody yet.</div>'}</div>`;
+  $('#lref').onclick=()=>renderLeads(p);
+  $('#lcsv').onclick=()=>{
+    const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+    const csv=['Name,Mobile,Email,From,Website,Date'].concat(rows.map(r=>[r.full_name,r.mobile,r.email,r.company,r.website,r.created_at].map(q).join(','))).join('\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download='resume-requests-'+new Date().toISOString().slice(0,10)+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  };
+  p.onclick=async e=>{ const b=e.target.closest('.ldel'); if(!b) return;
+    if(!confirm('Delete this entry?')) return;
+    const id=b.closest('.row').dataset.id;
+    const {data:d,error:er}=await sb.from('resume_requests').delete().eq('id',id).select();
+    if(er) return toast(er.message,true);
+    if(!d||!d.length) return toast('Not deleted — this login is not an admin',true);
+    toast('Deleted'); renderLeads(p); };
 }
 
 /* ---------------- settings ---------------- */
