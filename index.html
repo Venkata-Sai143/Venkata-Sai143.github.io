@@ -632,7 +632,7 @@
         // (resume_requests — only you can read them, in the admin), then opens
         // the resume PDF (profile.resume_url if set, otherwise /resume.pdf). ----
         // Email alert to you for every submission (free Web3Forms). Paste your access key between the quotes.
-        const WEB3FORMS_KEY = 'PASTE-YOUR-WEB3FORMS-KEY-HERE';
+        const WEB3FORMS_KEY = 'ca04985e-6649-4aa9-a052-8e80de4e6631';
         const notifyOwner = (name, mobile, email, company, website) => {
           const key = (CFG && CFG.WEB3FORMS_KEY) || WEB3FORMS_KEY;
           if (!key || key.indexOf('PASTE') === 0) return;
@@ -704,23 +704,18 @@
             if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return (err.textContent = 'Please enter a valid email address.');
             if (website && !/^https?:\/\//i.test(website)) website = 'https://' + website;
             if (website && !/^https?:\/\/[^\s.]+\.[^\s]{2,}$/i.test(website)) return (err.textContent = 'Please enter a valid website URL, or leave it empty.');
-            const resumeUrl = (dynamicData && dynamicData.profile && dynamicData.profile.resume_url) || '/resume.pdf';
+            const resumeUrl = (dynamicData && dynamicData.profile && dynamicData.profile.resume_url) || '/resume-vs-2026x9.pdf';
             if (hp.value) { window.open(resumeUrl, '_blank', 'noopener'); return close(); } // bots: skip saving
             if (!hasSupabase) return (err.textContent = 'Could not save your details right now. Please try again later.');
-            go.disabled = true; go.textContent = 'Please wait…';
-            // Open the tab now (browsers block popups opened after an await), point it at the resume after saving.
-            const tab = window.open('', '_blank');
+            // Open the PDF straight away (works on phones too), and save the details in the background.
+            const opened = window.open(resumeUrl, '_blank');
+            if (!opened) window.location.href = resumeUrl;
             try {
               const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
-              const { error } = await sb.from('resume_requests').insert({ full_name: name, mobile, email, company: company || null, website: website || null });
-              if (error) throw error;
-              notifyOwner(name, mobile, email, company, website);
-              if (tab) tab.location.href = resumeUrl; else window.location.href = resumeUrl;
-              form.reset(); close();
-            } catch (ex) {
-              if (tab) tab.close();
-              err.textContent = 'Could not save your details. Please check them and try again.';
-            } finally { go.disabled = false; go.textContent = 'Open resume'; }
+              sb.from('resume_requests').insert({ full_name: name, mobile, email, company: company || null, website: website || null })
+                .then(() => notifyOwner(name, mobile, email, company, website), () => notifyOwner(name, mobile, email, company, website));
+            } catch (_) { notifyOwner(name, mobile, email, company, website); }
+            form.reset(); close();
           });
         };
 
