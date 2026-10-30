@@ -420,17 +420,53 @@ function renderSingle(p){
   p.innerHTML=`<h2>${esc(s.label)}</h2><div class="sub">One record. Changes go live as soon as you save.</div>
     <div class="note"><b>Your existing media is safe.</b> The image and video fields below are pre-filled with the paths bundled in your build. Leave them as they are and the site keeps using the files already in <b>/assets</b>.</div>
     <div class="card" style="padding:20px"><div class="form" id="sform">${s.fields.map(f=>fieldHTML(f,CACHE.profile[f.k])).join('')}</div>
-    <div style="display:flex;gap:9px;margin-top:6px"><button class="btn primary" id="sv">Save profile</button>
-    <a class="btn" id="pv2" target="_blank" rel="noopener" href="${esc(CFG.SITE_URL||'/')}">Preview site</a></div></div>`;
+    <div style="display:flex;gap:9px;margin-top:6px;flex-wrap:wrap"><button class="btn primary" id="sv">Save profile</button>
+    <a class="btn" id="pv2" target="_blank" rel="noopener" href="${esc(CFG.SITE_URL||'/')}">Preview site</a>
+    <button class="btn" id="pdel" style="margin-left:auto;color:#b42318">Delete profile data</button></div></div>`;
   wireFields(p);
+
+  // Always work from the real database row, not just what was cached at login.
+  async function currentRow(){
+    const {data,error}=await sb.from('profiles').select('*').order('created_at',{ascending:true}).limit(1);
+    if(error) throw error;
+    return (data&&data[0])||null;
+  }
+
   $('#sv').onclick=async()=>{
-    const vals=readForm($('#sform'),s.fields);
-    const id=CACHE.profile.id;
-    const q = id ? sb.from('profiles').update(vals).eq('id',id).select().maybeSingle()
-                 : sb.from('profiles').insert(vals).select().maybeSingle();
-    const {data,error}=await q;
-    if(error) return toast(error.message,true);
-    CACHE.profile=data; toast('Profile saved');
+    try{
+      const vals=readForm($('#sform'),s.fields);
+      // "name" is NOT NULL in the database — an empty box must not wipe it.
+      if(!vals.name) vals.name=(CACHE.profile&&CACHE.profile.name)||'Venkata Sai';
+      delete vals.singleton; delete vals.id;
+      let row=await currentRow();
+      let saved;
+      if(row){
+        const {data,error}=await sb.from('profiles').update(vals).eq('id',row.id).select();
+        if(error) throw error;
+        // RLS silently updates 0 rows when the signed-in user is not in public.admins.
+        if(!data||!data.length) throw new Error('Nothing was saved — this login is not an admin (check the admins table) or the profile row is locked.');
+        saved=data[0];
+      }else{
+        const {data,error}=await sb.from('profiles').insert(vals).select();
+        if(error) throw error;
+        if(!data||!data.length) throw new Error('Profile could not be created — this login is not an admin.');
+        saved=data[0];
+      }
+      CACHE.profile=saved; toast('Profile saved');
+    }catch(err){ toast(err.message||'Save failed',true); }
+  };
+
+  $('#pdel').onclick=async()=>{
+    if(!confirm('Delete the saved profile / About data? The public site will go back to its built-in text. You can fill it in again afterwards.')) return;
+    try{
+      const row=await currentRow();
+      if(row){
+        const {data,error}=await sb.from('profiles').delete().eq('id',row.id).select();
+        if(error) throw error;
+        if(!data||!data.length) throw new Error('Nothing was deleted — this login is not an admin.');
+      }
+      CACHE.profile={}; toast('Profile data deleted'); renderSingle(p);
+    }catch(err){ toast(err.message||'Delete failed',true); }
   };
 }
 
@@ -614,7 +650,7 @@ function elFrom(h){ const d=document.createElement('div'); d.innerHTML=h.trim();
 let ED={s:null,rec:null,isNew:false};
 function openEditor(rec){
   const s=SCHEMA[CUR];
-  ED={s,rec:rec||{is_published:false},isNew:!rec};
+  ED={s,rec:rec||{is_published:true},isNew:!rec};
   $('#ed-t').textContent=(rec?'Edit ':'New ')+s.label.replace(/e?s$/,'').toLowerCase();
   $('#ed-b').innerHTML=`<div class="form" id="eform">${s.fields.map(f=>fieldHTML(f,ED.rec[f.k])).join('')}</div>`;
   wireFields($('#ed-b'));

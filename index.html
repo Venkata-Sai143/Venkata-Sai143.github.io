@@ -56,6 +56,58 @@
       #skills .dyn-skill-chips { display: flex; flex-wrap: wrap; gap: .7rem; }
       #skills .dyn-skill-chip { padding: .55rem 1.1rem; border-radius: 999px; background: rgba(0,0,0,.05); color: #000; font-weight: 500; font-size: .85rem; cursor: pointer; transition: background-color .2s ease, color .2s ease, transform .2s ease; }
       #skills .dyn-skill-chip:hover { background: #ff2b2b; color: #fff; transform: translateY(-2px); }
+      /* Expertise: drop the 01/02/03/04 number badges and the decorative
+         arrow doodle under the heading — matches regardless of whether
+         Supabase data is loaded, since it's pure CSS, not a JS patch. */
+      #expertise [data-aos] span:first-of-type { display: none !important; }
+      #expertise h2 > svg { display: none !important; }
+      /* Premium motion polish: smoother anchor scrolling + a refined
+         ease-out curve on every animation/transition already in the site
+         (scroll-reveal entrances and all hover/transition-all effects),
+         without touching layout, colors or structure. */
+      html { scroll-behavior: smooth; }
+      [data-aos] { transition-timing-function: cubic-bezier(.16,1,.3,1) !important; }
+      .transition-all, .transition-colors, .transition-transform, .transition-opacity, .transition-shadow {
+        transition-timing-function: cubic-bezier(.16,1,.3,1) !important;
+      }
+      /* Accessibility: respect reduced-motion preference (effectively turns
+         off scroll-reveal/hover motion for anyone who's asked for that),
+         and give keyboard users a visible focus ring the original design
+         didn't define. */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: .01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: .01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+      a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+        outline: 2px solid #ff2b2b !important;
+        outline-offset: 3px !important;
+        border-radius: 4px;
+      }
+      /* Scroll progress bar across the very top of the page. */
+      .scroll-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #ff2b2b, #ff6b35); transform-origin: left; transform: scaleX(0); z-index: 9999; pointer-events: none; }
+      /* Reveal-on-scroll for dynamically added cards (Projects, Certificates). */
+      .reveal-pre { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+      .reveal-pre.reveal-in { opacity: 1; transform: translateY(0); }
+      @media (prefers-reduced-motion: reduce) { .reveal-pre { opacity: 1; transform: none; transition: none; } }
+      /* Thin, branded scrollbar. */
+      ::-webkit-scrollbar { width: 10px; height: 10px; }
+      ::-webkit-scrollbar-track { background: #0b0b0b; }
+      ::-webkit-scrollbar-thumb { background: linear-gradient(#ff2b2b, #a80000); border-radius: 10px; border: 2px solid #0b0b0b; }
+      ::-webkit-scrollbar-thumb:hover { background: #ff2b2b; }
+      html { scrollbar-width: thin; scrollbar-color: #ff2b2b #0b0b0b; }
+      /* Card hover polish — lift + glow, same colors/shapes already in use. */
+      #projects .dyn-project-card { transition: transform .45s cubic-bezier(.16,1,.3,1), box-shadow .45s cubic-bezier(.16,1,.3,1), border-color .45s ease !important; }
+      #projects .dyn-project-card:hover { transform: translateY(-8px) !important; box-shadow: 0 30px 60px rgba(229,43,43,.28) !important; border-color: rgba(229,43,43,.55) !important; }
+      #projects .project-link { display: inline-flex !important; align-items: center; gap: .3rem; transition: gap .3s ease !important; }
+      #projects .project-link:hover { gap: .55rem; }
+      #certificates .cert-card { transition: transform .4s cubic-bezier(.16,1,.3,1), border-color .4s ease, box-shadow .4s cubic-bezier(.16,1,.3,1) !important; }
+      #certificates .cert-card:hover { transform: translateY(-8px) !important; box-shadow: 0 2rem 4rem rgba(0,0,0,.4) !important; }
+      #experience .experience-card { transition: transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s cubic-bezier(.16,1,.3,1) !important; }
+      #experience .experience-card:hover { transform: translateY(-6px) !important; box-shadow: 0 1.5rem 3rem rgba(0,0,0,.12) !important; }
     </style>
   </head>
   <body>
@@ -77,7 +129,7 @@
         // projects, certificates). Each key resolves to an array from the database,
         // or null (meaning: keep the section's built-in content, untouched).
         const fetchDynamicContent = async () => {
-          const empty = { expertise: null, skills: null, experiences: null, projects: null, certificates: null };
+          const empty = { expertise: null, skills: null, experiences: null, projects: null, certificates: null, profile: null };
           if (!hasSupabase) return empty;
           try {
             const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
@@ -86,9 +138,10 @@
               sb.from('skills').select('*').eq('is_published', true).order('sort_order'),
               sb.from('experiences').select('*').eq('is_published', true).order('sort_order'),
               sb.from('projects').select('*').eq('is_published', true).order('sort_order'),
-              sb.from('certificates').select('*').eq('is_published', true).order('sort_order')
-            ]), 4000) || [null, null, null, null, null];
-            const [expertiseRes, skillsRes, experiencesRes, projectsRes, certsRes] = results;
+              sb.from('certificates').select('*').eq('is_published', true).order('sort_order'),
+              sb.from('profiles').select('*').eq('singleton', true).limit(1)
+            ]), 4000) || [null, null, null, null, null, null];
+            const [expertiseRes, skillsRes, experiencesRes, projectsRes, certsRes, profileRes] = results;
 
             // Group flat skill rows into { category, skills: [name, …] } for rendering.
             const skillRows = skillsRes && !skillsRes.error && skillsRes.data?.length ? skillsRes.data : null;
@@ -108,7 +161,8 @@
               skills: skillGroups,
               experiences: experiencesRes && !experiencesRes.error && experiencesRes.data?.length ? experiencesRes.data : null,
               projects: projectsRes && !projectsRes.error && projectsRes.data?.length ? projectsRes.data : null,
-              certificates: certsRes && !certsRes.error && certsRes.data?.length ? certsRes.data : null
+              certificates: certsRes && !certsRes.error && certsRes.data?.length ? certsRes.data : null,
+              profile: profileRes && !profileRes.error && profileRes.data?.length ? profileRes.data[0] : null
             };
           } catch (e) {
             return empty;
@@ -119,6 +173,101 @@
           const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '';
           if (!start) return '';
           return `${fmt(start)} — ${current ? 'Present' : (fmt(end) || 'Present')}`;
+        };
+
+        // ---- Premium motion polish (scroll progress bar, smooth scroll,
+        // magnetic buttons, reveal-on-scroll) — pure visual polish layered on
+        // top of the existing design, nothing moved or restyled. Runs once,
+        // independent of Supabase data. ----
+        const revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal-in');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        // Used by the dynamic sections above (Projects, Certificates) to
+        // fade+slide each card in as it scrolls into view — the site's own
+        // AOS library never sees nodes added after the page first mounts,
+        // so this is a small independent observer instead.
+        const observeReveal = (el, delayMs) => {
+          el.classList.add('reveal-pre');
+          if (delayMs) el.style.transitionDelay = delayMs + 'ms';
+          revealObserver.observe(el);
+        };
+
+        let motionApplied = false;
+        const applyPremiumMotion = () => {
+          if (motionApplied) return;
+          const nav = document.querySelector('nav');
+          const hero = document.querySelector('#home');
+          if (!nav || !hero) return;
+          motionApplied = true;
+
+          document.documentElement.style.scrollBehavior = 'smooth';
+
+          // Thin progress bar across the top, filling as the page is scrolled.
+          const progress = document.createElement('div');
+          progress.className = 'scroll-progress';
+          document.body.appendChild(progress);
+          const updateProgress = () => {
+            const h = document.documentElement;
+            const scrolled = h.scrollTop / ((h.scrollHeight - h.clientHeight) || 1);
+            progress.style.transform = `scaleX(${Math.min(1, Math.max(0, scrolled))})`;
+          };
+          document.addEventListener('scroll', updateProgress, { passive: true });
+          updateProgress();
+
+          // Subtle magnetic pull toward the cursor on primary CTA buttons.
+          const magneticTargets = [nav.querySelector('a[href="#contact"].rounded-full')]
+            .concat([...hero.querySelectorAll('a.rounded-full')])
+            .filter(Boolean);
+          magneticTargets.forEach((el) => {
+            el.style.willChange = 'transform';
+            el.addEventListener('mousemove', (e) => {
+              const rect = el.getBoundingClientRect();
+              const x = e.clientX - rect.left - rect.width / 2;
+              const y = e.clientY - rect.top - rect.height / 2;
+              el.style.transform = `translate(${x / 8}px, ${y / 8}px)`;
+            });
+            el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+          });
+        };
+
+        // ---- Profile text (hero, About, Expertise heading, Skills heading, page
+        // title). Each field is only touched when Supabase has a non-empty value
+        // for it, so anything left blank in the admin keeps the site's built-in
+        // wording. Design/markup is never changed — only the words. Re-runs are
+        // safe: it re-applies whenever a section appears or the text differs. ----
+        const setText = (el, val) => { if (el && val && el.textContent !== val) el.textContent = val; };
+        const applyProfile = (profile) => {
+          if (!profile) return;
+          const q = (sel) => document.querySelector(sel);
+          // Hero
+          setText(q('#home h1 span'), profile.name);
+          setText(q('#home p.leading-relaxed'), profile.short_bio);
+          const heroA = q('#home a[href="#projects"], #home a[data-cta="1"]');
+          const heroB = q('#home a[href="#contact"], #home a[data-cta="2"]');
+          if (heroA) { heroA.dataset.cta = '1'; setText(heroA, profile.hero_cta_primary_label); if (profile.hero_cta_primary_href) heroA.setAttribute('href', profile.hero_cta_primary_href); }
+          if (heroB) { heroB.dataset.cta = '2'; setText(heroB, profile.hero_cta_secondary_label); if (profile.hero_cta_secondary_href) heroB.setAttribute('href', profile.hero_cta_secondary_href); }
+          // About
+          setText(q('#about h2'), profile.about_heading);
+          setText(q('#about p.leading-relaxed'), profile.about);
+          // Expertise heading block
+          const ex = q('#expertise');
+          if (ex) {
+            setText(ex.querySelector('[data-aos="fade-up"] > div'), profile.expertise_badge);
+            const h2 = ex.querySelector('h2');
+            const tn = h2 && [...h2.childNodes].find((n) => n.nodeType === 3);
+            if (tn && profile.expertise_heading && tn.textContent !== profile.expertise_heading) tn.textContent = profile.expertise_heading;
+            setText(ex.querySelector('[data-aos="fade-up"] > p'), profile.expertise_subtext);
+          }
+          // Skills heading (the dynamic skills block reads profile.skills_heading itself)
+          const sk = q('#skills');
+          if (sk && !sk.classList.contains('dynamic-skills')) setText(sk.querySelector('h2'), profile.skills_heading);
+          if (profile.meta_title && document.title !== profile.meta_title) document.title = profile.meta_title;
         };
 
         // ---- Experience (any number of cards — not capped at 3 anymore).
@@ -362,6 +511,7 @@
                 if (!event.target.closest('a')) window.open(link.href, '_blank', 'noopener,noreferrer');
               });
             }
+            observeReveal(card, grid.children.length * 80);
             grid.appendChild(card);
           });
 
@@ -417,21 +567,23 @@
             const paras = el.querySelectorAll('p');
             paras[1].textContent = item.issuer;
             paras[2].textContent = item.issued_date;
+            observeReveal(el, i * 80);
           });
         };
 
         // ---- Skills (replaces the built-in section only if Supabase has data; otherwise untouched) ----
-        const applySkills = (dynamicSkillGroups) => {
+        const applySkills = (dynamicSkillGroups, profile) => {
           const skills = document.querySelector('#skills');
           if (!skills || skills.dataset.resumeUpdated || !dynamicSkillGroups || !dynamicSkillGroups.length) return;
           skills.dataset.resumeUpdated = 'true';
           skills.classList.add('dynamic-skills');
           skills.innerHTML = `
             <div class="dyn-skills-wrap">
-              <h2 class="dyn-skills-heading">Technologies I Work With</h2>
+              <h2 class="dyn-skills-heading"></h2>
               <p class="dyn-skills-sub">Practical, job-ready skills across spreadsheets, databases, visualization, and analysis.</p>
               <div class="dyn-skill-cards"></div>
             </div>`;
+          skills.querySelector('.dyn-skills-heading').textContent = (profile && profile.skills_heading) || 'Technologies I Work With';
           const container = skills.querySelector('.dyn-skill-cards');
           dynamicSkillGroups.forEach((cat) => {
             const card = document.createElement('div');
@@ -463,12 +615,14 @@
 
         const applyAll = () => {
           if (!dynamicData) return false;
+          applyProfile(dynamicData.profile);
           applyExperience(dynamicData.experiences);
           applyExpertise(dynamicData.expertise);
           applyProjects(dynamicData.projects);
           applyCertificates(dynamicData.certificates);
-          applySkills(dynamicData.skills);
+          applySkills(dynamicData.skills, dynamicData.profile);
           return Boolean(
+            document.querySelector('#about') &&
             document.querySelector('#experience') &&
             document.querySelector('#expertise') &&
             document.querySelector('#projects') &&
@@ -477,11 +631,15 @@
           );
         };
 
-        const observer = new MutationObserver(() => { if (applyAll()) observer.disconnect(); });
+        const observer = new MutationObserver(() => {
+          applyPremiumMotion();
+          if (applyAll()) observer.disconnect();
+        });
         observer.observe(document.documentElement, { childList: true, subtree: true });
 
         fetchDynamicContent().then((data) => {
           dynamicData = data;
+          applyPremiumMotion();
           if (applyAll()) observer.disconnect();
         });
       })();
