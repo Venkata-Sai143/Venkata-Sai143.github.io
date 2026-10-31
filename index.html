@@ -650,8 +650,8 @@
             }).catch(() => {});
           } catch (_) {}
         };
-        // SMS OTP check before the resume opens. Keep false until the SMS provider is set up in Supabase
-        // (Authentication -> Providers -> Phone). Then change false to true.
+        // Email OTP check before the resume opens. Keep false until the free email sender (SMTP) and the
+        // email template are set up in Supabase (see the setup steps). Then change false to true.
         const OTP_ENABLED = false;
         let resumeGateApplied = false;
         const applyResumeGate = () => {
@@ -682,7 +682,7 @@
               <label for="rg-email">Email</label><input id="rg-email" type="email" autocomplete="email" maxlength="150">
               <label for="rg-company">From (company / name) <span style="opacity:.55;text-transform:none;letter-spacing:0">- optional</span></label><input id="rg-company" type="text" autocomplete="organization" maxlength="150">
               <label for="rg-website">Website URL <span style="opacity:.55;text-transform:none;letter-spacing:0">- optional</span></label><input id="rg-website" type="text" inputmode="url" autocomplete="url" placeholder="https://" maxlength="250">
-              <div class="rg-otp" style="display:none"><label for="rg-otp">Enter the 6-digit code sent to your mobile</label><input id="rg-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+              <div class="rg-otp" style="display:none"><label for="rg-otp">Enter the 6-digit code sent to your email</label><input id="rg-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
               <input class="rg-hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
               <div class="rg-err" role="alert"></div>
               <button type="submit" class="rg-go">Open resume</button>
@@ -702,7 +702,7 @@
             if (d.length === 12 && d.startsWith('91')) return '+' + d;
             return '+' + d;
           };
-          form.querySelector('#rg-mobile').addEventListener('input', () => { otpSentTo = ''; otpVerified = false; otpRow.style.display = 'none'; go.textContent = 'Open resume'; });
+          form.querySelector('#rg-email').addEventListener('input', () => { otpSentTo = ''; otpVerified = false; otpRow.style.display = 'none'; go.textContent = 'Open resume'; });
           const open = () => { overlay.classList.add('on'); setTimeout(() => form.querySelector('#rg-name').focus(), 50); };
           const resumeOnly = document.documentElement.classList.contains('resume-only');
           const leave = () => {
@@ -741,27 +741,27 @@
             if (hp.value) { window.open(resumeUrl, '_blank', 'noopener'); return close(); } // bots: skip saving
             if (!hasSupabase) return (err.textContent = 'Could not save your details right now. Please try again later.');
             if (OTP_ENABLED && !otpVerified) {
-              const phone = toE164(mobile);
+              const phone = email.toLowerCase();
               const sbo = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
               go.disabled = true;
               try {
                 if (otpSentTo !== phone) {
                   go.textContent = 'Sending code…';
-                  const { error: se } = await sbo.auth.signInWithOtp({ phone, options: { shouldCreateUser: true } });
+                  const { error: se } = await sbo.auth.signInWithOtp({ email: phone, options: { shouldCreateUser: true } });
                   if (se) throw se;
                   otpSentTo = phone; otpRow.style.display = 'block';
-                  err.style.color = '#7bd88f'; err.textContent = 'Code sent by SMS to ' + phone + '. Enter it below.';
+                  err.style.color = '#7bd88f'; err.textContent = 'We emailed a code to ' + phone + '. Enter it below (check Spam too).';
                   form.querySelector('#rg-otp').focus();
                   go.textContent = 'Verify & open resume'; go.disabled = false; return;
                 }
                 const token = form.querySelector('#rg-otp').value.replace(/\D/g, '');
-                if (token.length < 4) { err.style.color = ''; err.textContent = 'Please enter the code from the SMS.'; go.disabled = false; return; }
+                if (token.length < 6) { err.style.color = ''; err.textContent = 'Please enter the code from your email.'; go.disabled = false; return; }
                 go.textContent = 'Verifying…';
-                const { error: ve } = await sbo.auth.verifyOtp({ phone, token, type: 'sms' });
+                const { error: ve } = await sbo.auth.verifyOtp({ email: phone, token, type: 'email' });
                 if (ve) throw ve;
                 otpVerified = true; err.textContent = '';
               } catch (ex) {
-                err.style.color = ''; err.textContent = (otpSentTo === phone) ? 'Wrong or expired code. Please try again.' : 'Could not send the SMS code. Please check the number and try again.';
+                err.style.color = ''; err.textContent = (otpSentTo === phone) ? 'Wrong or expired code. Please try again.' : 'Could not send the email code. Please check your email address and try again.';
                 go.textContent = otpSentTo === phone ? 'Verify & open resume' : 'Open resume'; go.disabled = false; return;
               }
               go.disabled = false;
