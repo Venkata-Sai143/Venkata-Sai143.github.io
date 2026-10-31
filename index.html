@@ -652,7 +652,7 @@
         };
         // Email OTP check before the resume opens. Keep false until the free email sender (SMTP) and the
         // email template are set up in Supabase (see the setup steps). Then change false to true.
-        const OTP_ENABLED = false;
+        const OTP_ENABLED = true;
         let resumeGateApplied = false;
         const applyResumeGate = () => {
           if (resumeGateApplied) return;
