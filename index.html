@@ -681,7 +681,7 @@
               <label for="rg-email">Email</label><input id="rg-email" type="email" autocomplete="email" maxlength="150">
               <label for="rg-company">From (company / name) <span style="opacity:.55;text-transform:none;letter-spacing:0">- optional</span></label><input id="rg-company" type="text" autocomplete="organization" maxlength="150">
               <label for="rg-website">Website URL <span style="opacity:.55;text-transform:none;letter-spacing:0">- optional</span></label><input id="rg-website" type="text" inputmode="url" autocomplete="url" placeholder="https://" maxlength="250">
-              <div class="rg-otp" style="display:none"><label for="rg-otp">Enter the 6-digit code sent to your email</label><input id="rg-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+              <div class="rg-otp" style="display:none"><label for="rg-otp">Enter the code sent to your email</label><input id="rg-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10"></div>
               <input class="rg-hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
               <div class="rg-err" role="alert"></div>
               <button type="submit" class="rg-go">Open resume</button>
@@ -759,7 +759,7 @@
                 if (ve) throw ve;
                 otpVerified = true; err.textContent = '';
               } catch (ex) {
-                err.style.color = ''; err.textContent = (otpSentTo === phone) ? 'Wrong or expired code. Please try again.' : 'Could not send the email code. Please check your email address and try again.';
+                err.style.color = ''; err.textContent = (otpSentTo === phone) ? 'Wrong or expired code. Please try again.' : 'Could not send the email code. Please check your email address and try again.' + (ex && ex.message ? ' (' + ex.message + ')' : '');
                 go.textContent = otpSentTo === phone ? 'Verify & open resume' : 'Open resume'; go.disabled = false; return;
               }
               go.disabled = false;
