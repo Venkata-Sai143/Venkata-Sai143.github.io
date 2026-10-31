@@ -650,6 +650,9 @@
             }).catch(() => {});
           } catch (_) {}
         };
+        // SMS OTP check before the resume opens. Keep false until the SMS provider is set up in Supabase
+        // (Authentication -> Providers -> Phone). Then change false to true.
+        const OTP_ENABLED = false;
         let resumeGateApplied = false;
         const applyResumeGate = () => {
           if (resumeGateApplied) return;
@@ -675,9 +678,11 @@
               <p class="rg-sub">Enter your details to open the resume.</p>
               <label for="rg-name">Full name</label><input id="rg-name" type="text" autocomplete="name" maxlength="100">
               <label for="rg-mobile">Mobile number</label><input id="rg-mobile" type="tel" autocomplete="tel" inputmode="tel" maxlength="20">
+              <label for="rg-mobile2">Confirm mobile number</label><input id="rg-mobile2" type="tel" autocomplete="off" inputmode="tel" maxlength="20">
               <label for="rg-email">Email</label><input id="rg-email" type="email" autocomplete="email" maxlength="150">
               <label for="rg-company">From (company / name) <span style="opacity:.55;text-transform:none;letter-spacing:0">- optional</span></label><input id="rg-company" type="text" autocomplete="organization" maxlength="150">
               <label for="rg-website">Website URL <span style="opacity:.55;text-transform:none;letter-spacing:0">- optional</span></label><input id="rg-website" type="text" inputmode="url" autocomplete="url" placeholder="https://" maxlength="250">
+              <div class="rg-otp" style="display:none"><label for="rg-otp">Enter the 6-digit code sent to your mobile</label><input id="rg-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
               <input class="rg-hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
               <div class="rg-err" role="alert"></div>
               <button type="submit" class="rg-go">Open resume</button>
@@ -687,6 +692,17 @@
           const err = overlay.querySelector('.rg-err');
           const go = overlay.querySelector('.rg-go');
           const hp = overlay.querySelector('.rg-hp');
+          const otpRow = overlay.querySelector('.rg-otp');
+          let otpSentTo = '';
+          let otpVerified = false;
+          const toE164 = (raw) => {
+            const d = raw.replace(/\D/g, '');
+            if (raw.trim().startsWith('+')) return '+' + d;
+            if (d.length === 10) return '+91' + d;
+            if (d.length === 12 && d.startsWith('91')) return '+' + d;
+            return '+' + d;
+          };
+          form.querySelector('#rg-mobile').addEventListener('input', () => { otpSentTo = ''; otpVerified = false; otpRow.style.display = 'none'; go.textContent = 'Open resume'; });
           const open = () => { overlay.classList.add('on'); setTimeout(() => form.querySelector('#rg-name').focus(), 50); };
           const resumeOnly = document.documentElement.classList.contains('resume-only');
           const leave = () => {
@@ -717,12 +733,39 @@
             const digits = mobile.replace(/\D/g, '');
             if (name.length < 2) return (err.textContent = 'Please enter your full name.');
             if (!/^\+?[0-9\s\-()]+$/.test(mobile) || digits.length < 7 || digits.length > 15) return (err.textContent = 'Please enter a valid mobile number.');
+            if (form.querySelector('#rg-mobile2').value.replace(/\D/g, '') !== digits) return (err.textContent = 'Mobile numbers do not match. Please re-enter.');
             if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return (err.textContent = 'Please enter a valid email address.');
             if (website && !/^https?:\/\//i.test(website)) website = 'https://' + website;
             if (website && !/^https?:\/\/[^\s.]+\.[^\s]{2,}$/i.test(website)) return (err.textContent = 'Please enter a valid website URL, or leave it empty.');
             const resumeUrl = (dynamicData && dynamicData.profile && dynamicData.profile.resume_url) || '/resume-vs-2026x9.pdf';
             if (hp.value) { window.open(resumeUrl, '_blank', 'noopener'); return close(); } // bots: skip saving
             if (!hasSupabase) return (err.textContent = 'Could not save your details right now. Please try again later.');
+            if (OTP_ENABLED && !otpVerified) {
+              const phone = toE164(mobile);
+              const sbo = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+              go.disabled = true;
+              try {
+                if (otpSentTo !== phone) {
+                  go.textContent = 'Sending code…';
+                  const { error: se } = await sbo.auth.signInWithOtp({ phone, options: { shouldCreateUser: true } });
+                  if (se) throw se;
+                  otpSentTo = phone; otpRow.style.display = 'block';
+                  err.style.color = '#7bd88f'; err.textContent = 'Code sent by SMS to ' + phone + '. Enter it below.';
+                  form.querySelector('#rg-otp').focus();
+                  go.textContent = 'Verify & open resume'; go.disabled = false; return;
+                }
+                const token = form.querySelector('#rg-otp').value.replace(/\D/g, '');
+                if (token.length < 4) { err.style.color = ''; err.textContent = 'Please enter the code from the SMS.'; go.disabled = false; return; }
+                go.textContent = 'Verifying…';
+                const { error: ve } = await sbo.auth.verifyOtp({ phone, token, type: 'sms' });
+                if (ve) throw ve;
+                otpVerified = true; err.textContent = '';
+              } catch (ex) {
+                err.style.color = ''; err.textContent = (otpSentTo === phone) ? 'Wrong or expired code. Please try again.' : 'Could not send the SMS code. Please check the number and try again.';
+                go.textContent = otpSentTo === phone ? 'Verify & open resume' : 'Open resume'; go.disabled = false; return;
+              }
+              go.disabled = false;
+            }
             // Open the PDF straight away (works on phones too), and save the details in the background.
             const opened = window.open(resumeUrl, '_blank');
             if (!opened) window.location.href = resumeUrl;
@@ -731,7 +774,7 @@
               sb.from('resume_requests').insert({ full_name: name, mobile, email, company: company || null, website: website || null })
                 .then(() => notifyOwner(name, mobile, email, company, website), () => notifyOwner(name, mobile, email, company, website));
             } catch (_) { notifyOwner(name, mobile, email, company, website); }
-            form.reset();
+            form.reset(); otpRow.style.display = 'none'; otpSentTo = ''; otpVerified = false; go.textContent = 'Open resume'; err.style.color = '';
             if (opened) close(); else overlay.classList.remove('on');
           });
         };
