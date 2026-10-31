@@ -686,6 +686,9 @@
           const close = () => overlay.classList.remove('on');
           btn.addEventListener('click', open);
           btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+          // Private share link: https://venkata-sai143.github.io/#resume opens this popup straight away.
+          if (/(^#resume$)|([?&]resume(=|&|$))/i.test(location.hash + location.search)) setTimeout(open, 600);
+          window.addEventListener('hashchange', () => { if (/^#resume$/i.test(location.hash)) open(); });
           overlay.querySelector('.rg-x').addEventListener('click', close);
           overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
           document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
