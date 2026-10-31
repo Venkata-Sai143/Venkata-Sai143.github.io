@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>try{if(/(^#resume$)|([?&]resume(=|&|$))/i.test(location.hash+location.search))document.documentElement.classList.add("resume-only")}catch(e){}</script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -111,6 +112,9 @@
       /* Resume gate: "Download Resume" button + details popup. */
       .rg-overlay { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(0,0,0,.65); backdrop-filter: blur(6px); }
       .rg-overlay.on { display: flex; }
+      html.resume-only body > *:not(.rg-overlay) { visibility: hidden !important; }
+      html.resume-only, html.resume-only body { background: #0b0b0b !important; overflow: hidden !important; }
+      html.resume-only .rg-overlay { background: #0b0b0b; backdrop-filter: none; }
       .rg-box { max-height: 92vh; overflow-y: auto; position: relative; width: 100%; max-width: 26rem; background: #141414; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 1.5rem; padding: 2rem 1.75rem; box-shadow: 0 30px 80px rgba(0,0,0,.6); animation: rgIn .35s cubic-bezier(.16,1,.3,1); font-family: inherit; }
       @keyframes rgIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
       .rg-box h3 { margin: 0 0 .35rem; font-size: 1.4rem; font-weight: 900; }
@@ -683,13 +687,19 @@
           const go = overlay.querySelector('.rg-go');
           const hp = overlay.querySelector('.rg-hp');
           const open = () => { overlay.classList.add('on'); setTimeout(() => form.querySelector('#rg-name').focus(), 50); };
-          const close = () => overlay.classList.remove('on');
+          const resumeOnly = document.documentElement.classList.contains('resume-only');
+          const leave = () => {
+            // Link-only mode: closing goes back to where the visitor came from, or to the portfolio.
+            let ref = ''; try { ref = document.referrer; } catch (_) {}
+            if (ref && ref.indexOf(location.origin) !== 0 && history.length > 1) history.back();
+            else location.replace('/');
+          };
+          const close = () => { overlay.classList.remove('on'); if (resumeOnly) leave(); };
           btn.addEventListener('click', open);
           btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
           // Private share link: https://venkata-sai143.github.io/#resume opens this popup straight away.
-          if (/(^#resume$)|([?&]resume(=|&|$))/i.test(location.hash + location.search)) setTimeout(open, 600);
-          window.addEventListener('hashchange', () => { if (/^#resume$/i.test(location.hash)) open(); });
-          overlay.querySelector('.rg-x').addEventListener('click', close);
+          if (resumeOnly) open();
+                    overlay.querySelector('.rg-x').addEventListener('click', close);
           overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
           document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
@@ -718,7 +728,8 @@
               sb.from('resume_requests').insert({ full_name: name, mobile, email, company: company || null, website: website || null })
                 .then(() => notifyOwner(name, mobile, email, company, website), () => notifyOwner(name, mobile, email, company, website));
             } catch (_) { notifyOwner(name, mobile, email, company, website); }
-            form.reset(); close();
+            form.reset();
+            if (opened) close(); else overlay.classList.remove('on');
           });
         };
 
